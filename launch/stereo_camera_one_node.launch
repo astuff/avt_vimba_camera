@@ -1,7 +1,7 @@
 <launch>
 	<arg name="stereo" default="stereo"/>
-	<arg name="left_guid" default="50-0503343289"/>
-	<arg name="right_guid" default="50-0503343290"/>
+	<arg name="left_guid" default="50-0536891657"/>
+	<arg name="right_guid" default="50-0536933821"/>
 	
   	<node ns="$(arg stereo)" name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc" output="screen"/>
 
@@ -9,7 +9,10 @@
 
 		<!-- Static params -->
 		<param name="left_guid" value="$(arg left_guid)"/>
+                <param name="left_ip" value="$(arg left_guid)"/>
 		<param name="right_guid" value="$(arg right_guid)"/>
+                <param name="right_ip" value="$(arg left_guid)"/>
+
 		<param name="left_camera_info_url" value="file://$(find avt_vimba_camera)/calibrations/calibration_$(arg left_guid).yaml"/>
 		<param name="right_camera_info_url" value="file://$(find avt_vimba_camera)/calibrations/calibration_$(arg right_guid).yaml"/>
 
