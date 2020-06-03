@@ -19,8 +19,8 @@
   <arg name="binning_y" default="1"/>
   <arg name="decimation_x" default="1"/>
   <arg name="decimation_y" default="1"/>
-  <arg name="x_offset" default="8"/>
-  <arg name="y_offset" default="9"/>
+  <arg name="x_offset" default="0"/>
+  <arg name="y_offset" default="0"/>
   <arg name="width" default="1920" doc="Width of the image (pixels)"/>
   <arg name="height" default="1440" doc="Height of the image (pixels)"/>
   <arg name="stream_bytes_per_second" default="45000000" doc="Stream bandwidth (B/s)"/>
