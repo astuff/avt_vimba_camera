@@ -11,7 +11,7 @@
     <arg name="frame_id" value="$(arg frame_id)"/>
     <arg name="ip" value="$(arg ip)"/>
     <arg name="guid" value="$(arg guid)"/>
-    <arg name="camera_info_url" name="$(arg camera_info_url)"/>
+    <arg name="camera_info_url" value="$(arg camera_info_url)"/>
     <arg name="acquisition_rate" value="$(arg acquisition_rate)"/>
 
     <!-- Params specific to Mako G-319 -->
