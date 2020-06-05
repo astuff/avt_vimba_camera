@@ -2,8 +2,8 @@
 Changelog for package avt_vimba_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.12 (2020-06-05)
+-------------------
 * Fix MonoCamera nodelet (`#16 <https://github.com/astuff/avt_vimba_camera/issues/16>`_)
 * Launch File Updates (`#13 <https://github.com/astuff/avt_vimba_camera/issues/13>`_)
 
