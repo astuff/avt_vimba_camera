@@ -123,8 +123,6 @@ AvtVimbaCamera::AvtVimbaCamera(std::string name) {
   show_debug_prints_ = false;
   name_ = name;
 
-  signal(SIGINT, intHandler);
-
   camera_state_ = OPENING;
 
   updater_.setHardwareID("unknown");
@@ -309,6 +307,9 @@ CameraPtr AvtVimbaCamera::openCamera(std::string id_str) {
   CameraPtr camera;
   VimbaSystem& vimba_system(VimbaSystem::GetInstance());
 
+  // set handler to catch ctrl+c presses
+  sighandler_t oldHandler = signal(SIGINT, intHandler);
+
   // get camera
   VmbErrorType err = vimba_system.GetCameraByID(id_str.c_str(), camera);
   while (err != VmbErrorSuccess) {
@@ -340,6 +341,9 @@ CameraPtr AvtVimbaCamera::openCamera(std::string id_str) {
       return camera;
     }
   }
+
+  // set previous handler back
+  signal(SIGINT, oldHandler);
 
   std::string cam_id, cam_name, cam_model, cam_sn, cam_int_id;
   VmbInterfaceType cam_int_type;
