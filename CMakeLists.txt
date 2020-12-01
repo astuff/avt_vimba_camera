@@ -123,6 +123,11 @@ add_library(avt_camera_nodelets
   src/frame_observer.cpp)
 add_dependencies_and_linkings(avt_camera_nodelets)
 
+
+add_executable(trigger_node src/nodes/trigger_node.cpp)
+add_dependencies_and_linkings(trigger_node)
+
+
 #############
 ## Install ##
 #############

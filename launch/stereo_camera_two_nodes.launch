@@ -8,7 +8,12 @@
       <param name="camera_info_url" value="file://$(find avt_vimba_camera)/calibrations/calibration_50-0503343289.yaml"/>
       <param name="frame_id" value="left_optical"/>
       <param name="trig_timestamp_topic" value=""/>
-      <param name="trigger_source" value="FixedRate"/>
+      <param name="trigger_source" value="Action0"/>
+      <param name="trigger_mode" value="On"/>
+      <param name="action_device_key" value="1"/>
+      <param name="action_group_key" value="1"/>
+      <param name="action_group_mask" value="1"/>
+      <param name="trigger_selector" value="FrameStart"/>
       <param name="sync_out_source" value="Exposing"/>
       <param name="sync_out_polarity" value="Normal"/>
       <param name="acquisition_mode" value="Continuous"/>
@@ -31,9 +36,12 @@
       <param name="camera_info_url" value="file://$(find avt_vimba_camera)/calibrations/calibration_50-0503343290.yaml"/>
       <param name="frame_id" value="right_optical"/>
       <param name="trig_timestamp_topic" value=""/>
-      <param name="trigger_source" value="Line1"/>
-      <param name="trigger_selector" value="AcquisitionStart"/>
+      <param name="trigger_source" value="Action0"/>
       <param name="trigger_mode" value="On"/>
+      <param name="action_device_key" value="1"/>
+      <param name="action_group_key" value="1"/>
+      <param name="action_group_mask" value="1"/>
+      <param name="trigger_selector" value="FrameStart"/>
       <param name="sync_in_selector" value="SyncIn1"/>
       <param name="acquisition_mode" value="Continuous"/>
       <param name="pixel_format" value="BayerRG8"/>
