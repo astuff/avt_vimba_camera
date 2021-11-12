@@ -9,7 +9,7 @@
   File:        StringFeature.cpp
 
   Description: Implementation of class AVT::VmbAPI::StringFeature.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

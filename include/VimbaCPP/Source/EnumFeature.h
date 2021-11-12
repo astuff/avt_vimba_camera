@@ -9,7 +9,7 @@
   File:        EnumFeature.h
 
   Description: Definition of class AVT::VmbAPI::EnumFeature.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

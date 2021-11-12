@@ -38,6 +38,8 @@
 namespace AVT {
 namespace VmbAPI {
 
+class Camera; // forward declaration of camera class for befriending
+
 class Frame 
 {
   friend class Camera;

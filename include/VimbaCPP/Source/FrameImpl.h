@@ -10,7 +10,7 @@
 
   Description: Definition of pointer to implementation structure used by
                AVT::VmbAPI::Frame.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 
@@ -42,7 +42,6 @@ struct Frame::Impl
 
     IFrameObserverPtr   m_pObserver;
     MutexPtr            m_pObserverMutex;
-    ConditionHelper     m_observerConditionHelper;
 
     bool                m_bAlreadyAnnounced;
     bool                m_bAlreadyQueued;

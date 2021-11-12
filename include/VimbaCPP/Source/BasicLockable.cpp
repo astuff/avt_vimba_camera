@@ -9,7 +9,6 @@
   File:        BasicLockable.cpp
 
   Description: Implementation of class AVT::VmbAPI::BasicLockable.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 
@@ -46,7 +45,11 @@ BasicLockable::BasicLockable( MutexPtr pMutex )
 {
 }
 
-MutexPtr BasicLockable::GetMutex() const
+MutexPtr& BasicLockable::GetMutex()
+{
+    return m_pMutex;
+}
+const MutexPtr& BasicLockable::GetMutex() const
 {
     return m_pMutex;
 }

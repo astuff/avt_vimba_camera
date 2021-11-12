@@ -92,9 +92,20 @@ VmbErrorType VimbaSystem::QueryVersion( VmbVersionInfo_t &rVersion )
 
 VmbErrorType VimbaSystem::Startup()
 {
-    VmbError_t res = VmbStartup();
+    VmbError_t res = VmbErrorSuccess;
+    VmbBool_t gevTL = false;
 
-    VmbFeatureBoolGet( gVimbaHandle, "GeVTLIsPresent", &m_pImpl->m_bGeVTLPresent );
+    res = VmbStartup();
+    if ( VmbErrorSuccess == res )
+    {
+        res = VmbFeatureBoolGet( gVimbaHandle, "GeVTLIsPresent", &gevTL );
+        if ( VmbErrorSuccess == res )
+        {
+            m_pImpl->m_bGeVTLPresent = gevTL;
+        }
+
+        SetHandle( gVimbaHandle );
+    }
 
     return (VmbErrorType)res;
 }
@@ -332,14 +343,24 @@ VmbErrorType VimbaSystem::GetCameraByID( const char *pStrID, CameraPtr &rCamera 
         {
             // Try to identify the desired camera by IP or MAC address (in the list of known cameras)
             if (    true == m_pImpl->m_bGeVTLPresent
-                 && false == m_pImpl->m_bGeVDiscoveryAutoOn
                  && false == m_pImpl->IsIPAddress(pStrID) )
             {
-                // HINT: We have to send one discovery packet in case we want to open a GigE cam (unless we open it by IP address)
-                res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllOnce" );
-                if ( VmbErrorSuccess != res )
+                // check if GeV discovery is enabled
+                const char *pDiscoveryStatus = NULL;
+                res = VmbFeatureEnumGet( gVimbaHandle, "GeVDiscoveryStatus", &pDiscoveryStatus );
+                if ( VmbErrorSuccess == res )
                 {
-                    LOG_FREE_TEXT( "Could not ping camera over ethernet" )
+                    VmbInt64_t discoveryValue = 0;
+                    res = VmbFeatureEnumAsInt( gVimbaHandle, "GeVDiscoveryStatus", pDiscoveryStatus, &discoveryValue );
+                    if ( 1 != discoveryValue )
+                    {
+                        // HINT: We have to send one discovery packet in case we want to open a GigE cam (unless we open it by IP address)
+                        res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllOnce" );
+                        if ( VmbErrorSuccess != res )
+                        {
+                            LOG_FREE_TEXT( "Could not ping camera over ethernet" )
+                        }
+                    }
                 }
             }
 
@@ -698,11 +719,25 @@ VmbErrorType VimbaSystem::RegisterCameraListObserver( const ICameraListObserverP
                 if (    VmbErrorSuccess == res
                      && true == m_pImpl->m_bGeVTLPresent )
                 {
-                    // HINT: Without enabling GEVDiscovery registering a device observer is pointless
-                    res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllAuto" );
+                    // check if GeV discovery was already enabled
+                    const char *pDiscoveryStatus = NULL;
+                    res = VmbFeatureEnumGet( gVimbaHandle, "GeVDiscoveryStatus", &pDiscoveryStatus );
                     if ( VmbErrorSuccess == res )
                     {
-                        m_pImpl->m_bGeVDiscoveryAutoOn = true;
+                        VmbInt64_t discoveryValue = 0;
+                        res = VmbFeatureEnumAsInt( gVimbaHandle, "GeVDiscoveryStatus", pDiscoveryStatus, &discoveryValue );
+                        if ( VmbErrorSuccess == res )
+                        {
+                            if ( 1 != discoveryValue )
+                            {
+                                // HINT: Without enabling GEVDiscovery registering a device observer is pointless
+                                res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllAuto" );
+                                if ( VmbErrorSuccess == res )
+                                {
+                                    m_pImpl->m_bGeVDiscoveryAutoOn = true;
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -747,16 +782,30 @@ VmbErrorType VimbaSystem::UnregisterCameraListObserver( const ICameraListObserve
                     if (    VmbErrorSuccess == res
                          && true == m_pImpl->m_bGeVTLPresent )
                     {
-                        // HINT: After unregistering the last device observer we do not need to send discovery pings anymore
-                        res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllOff" );
+                        // check if GeV discovery was already enabled
+                        const char *pDiscoveryStatus = NULL;
+                        res = VmbFeatureEnumGet( gVimbaHandle, "GeVDiscoveryStatus", &pDiscoveryStatus );
                         if ( VmbErrorSuccess == res )
                         {
-                            m_pImpl->m_bGeVDiscoveryAutoOn = false;
-                        }
-                        else
-                        {
-                            // Rollback
-                            VmbFeatureInvalidationRegister( gVimbaHandle, "DiscoveryCameraEvent", m_pImpl->CameraDiscoveryCallback, this );
+                            VmbInt64_t discoveryValue = 0;
+                            res = VmbFeatureEnumAsInt( gVimbaHandle, "GeVDiscoveryStatus", pDiscoveryStatus, &discoveryValue );
+                            if ( VmbErrorSuccess == res )
+                            {
+                                if ( 0 != discoveryValue )
+                                {
+                                    // HINT: After unregistering the last device observer we do not need to send discovery pings anymore
+                                    res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllOff" );
+                                    if ( VmbErrorSuccess == res )
+                                    {
+                                        m_pImpl->m_bGeVDiscoveryAutoOn = false;
+                                    }
+                                    else
+                                    {
+                                        // Rollback
+                                        VmbFeatureInvalidationRegister( gVimbaHandle, "DiscoveryCameraEvent", m_pImpl->CameraDiscoveryCallback, this );
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -932,7 +981,9 @@ VimbaSystem& VimbaSystem::operator=( const VimbaSystem& )
 VimbaSystem::~VimbaSystem()
 {
     delete m_pImpl->m_pLogger;
+    m_pImpl->m_pLogger = NULL;
     delete m_pImpl;
+    m_pImpl = NULL;
 }
 
 // Instance
@@ -1005,10 +1056,27 @@ VmbErrorType VimbaSystem::Impl::UpdateCameraList()
     std::vector<VmbCameraInfo_t> cameraInfos( 10 );
 
     // HINT: We explicitly have to enable GeVDiscovery to be able to use UpdateCameraList.
-    if (    true == m_bGeVTLPresent
-        &&  false == m_bGeVDiscoveryAutoOn )
+    if ( true == m_bGeVTLPresent )
     {
-        res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllOnce" );
+        // check GeV discovery status
+        const char *pDiscoveryStatus = NULL;
+        res = VmbFeatureEnumGet( gVimbaHandle, "GeVDiscoveryStatus", &pDiscoveryStatus );
+        if ( VmbErrorSuccess == res )
+        {
+            VmbInt64_t discoveryValue = 0;
+            res = VmbFeatureEnumAsInt( gVimbaHandle, "GeVDiscoveryStatus", pDiscoveryStatus, &discoveryValue );
+            if ( VmbErrorSuccess == res )
+            {
+                if ( 1 != discoveryValue )
+                {
+                    res = VmbFeatureCommandRun( gVimbaHandle, "GeVDiscoveryAllOnce" );
+                    if ( VmbErrorSuccess == res )
+                    {
+                        m_bGeVDiscoveryAutoOn = true;
+                    }
+                }
+            }
+        }
     }
     try
     {
@@ -1087,6 +1155,8 @@ VmbErrorType VimbaSystem::Impl::UpdateCameraList()
 
 Logger VimbaSystem::GetLogger() const
 {
+    if(m_pImpl == NULL)
+        return NULL;
     return m_pImpl->m_pLogger;
 }
 

@@ -9,7 +9,6 @@
   File:        Interface.hpp
 
   Description: Inline wrapper functions for class AVT::VmbAPI::Interface.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 

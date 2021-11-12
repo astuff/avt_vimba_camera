@@ -9,7 +9,6 @@
   File:        LoggerDefines.h
 
   Description: Definition of macros for logging.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 

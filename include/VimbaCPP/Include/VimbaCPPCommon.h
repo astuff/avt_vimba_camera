@@ -1,5 +1,5 @@
 /*=============================================================================
-  Copyright (C) 2012 Allied Vision Technologies.  All Rights Reserved.
+  Copyright (C) 2012 - 2017 Allied Vision Technologies.  All Rights Reserved.
 
   Redistribution of this file, in original or modified form, without
   prior written consent of Allied Vision Technologies is prohibited.
@@ -53,9 +53,9 @@ namespace VmbAPI {
 
 enum UpdateTriggerType
 {
-    UpdateTriggerPluggedIn           = 0,
-    UpdateTriggerPluggedOut          = 1,
-    UpdateTriggerOpenStateChanged    = 3
+    UpdateTriggerPluggedIn           = 0,           // A new camera was discovered by Vimba
+    UpdateTriggerPluggedOut          = 1,           // A camera has disappeared from the bus
+    UpdateTriggerOpenStateChanged    = 3            // The possible opening mode of a camera has changed (e.g., because it was opened by another application)
 };
 
 typedef std::vector<VmbUint64_t>    Uint64Vector;

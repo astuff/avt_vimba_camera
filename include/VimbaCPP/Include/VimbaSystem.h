@@ -45,7 +45,7 @@ namespace VmbAPI {
 
 typedef std::vector<InterfacePtr> InterfacePtrVector;
 
-class VimbaSystem
+class VimbaSystem : public FeatureContainer
 {
   public:
     //

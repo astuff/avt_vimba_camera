@@ -475,6 +475,10 @@ struct Camera::Impl
     MutexPtr                        m_pQueueFrameMutex;
     bool                            m_bAllowQueueFrame;
 
+    VmbFeaturePersist_t             m_persistType;
+    VmbInt32_t                      m_maxIterations;
+    VmbInt32_t                      m_loggingLevel;
+
     VmbErrorType AppendFrameToVector( const FramePtr &frame );
 };
 
@@ -501,9 +505,6 @@ Camera::Camera( const char *pID,
                 const char *pInterfaceID,
                 VmbInterfaceType eInterfaceType )
     :   m_pImpl( new Impl() )
-    ,   m_persistType( -1 )
-    ,   m_maxIterations( -1 )
-    ,   m_loggingLevel( -1 )
 {
     m_pImpl->m_cameraInfo.cameraIdString.assign( pID ? pID : "" );
     // TODO: Remove this with interface change
@@ -521,6 +522,9 @@ Camera::Camera( const char *pID,
     m_pImpl->m_eInterfaceType = eInterfaceType;
     m_pImpl->m_bAllowQueueFrame = true;
     SP_SET( m_pImpl->m_pQueueFrameMutex, new Mutex );
+    m_pImpl->m_persistType = -1;
+    m_pImpl->m_maxIterations = -1;
+    m_pImpl->m_loggingLevel = -1;
 }
 
 Camera::~Camera()
@@ -925,9 +929,10 @@ VmbErrorType Camera::StopContinuousImageAcquisition()
     FeaturePtr      pFeature;
 
     // Prevent queuing of new frames while stopping
-    MutexGuard guard( m_pImpl->m_pQueueFrameMutex );
-    m_pImpl->m_bAllowQueueFrame = false;
-    guard.Release();
+    {
+        MutexGuard guard( m_pImpl->m_pQueueFrameMutex );
+        m_pImpl->m_bAllowQueueFrame = false;
+    }
 
     res = RunFeatureCommand( *this, "AcquisitionStop" );
     if ( VmbErrorSuccess != res )
@@ -954,8 +959,10 @@ VmbErrorType Camera::StopContinuousImageAcquisition()
         LOG_FREE_TEXT("Could not stop capture, unable to revoke frames")
     }
 
-    guard.Protect( m_pImpl->m_pQueueFrameMutex );
-    m_pImpl->m_bAllowQueueFrame = true;
+    {
+        MutexGuard guard( m_pImpl->m_pQueueFrameMutex );
+        m_pImpl->m_bAllowQueueFrame = true;
+    }
 
     return res;
 }
@@ -1021,25 +1028,19 @@ VmbErrorType Camera::RevokeFrame( const FramePtr &frame )
                     m_pImpl->m_frameHandlers.Vector.end() != iter;)
             {
                 // Begin exclusive write lock frame handler
-                if ( true == SP_ACCESS(( *iter ))->EnterWriteLock( true ))
+                MutexGuard lockal_lock ( SP_ACCESS((*iter))->Mutex() );
+                if ( SP_ISEQUAL( frame, SP_ACCESS(( *iter ))->GetFrame() ))
                 {
-                    if ( SP_ISEQUAL( frame, SP_ACCESS(( *iter ))->GetFrame() ))
-                    {
-                        SP_ACCESS( frame )->m_pImpl->m_frame.context[FRAME_HDL] = NULL;
-                        SP_ACCESS( frame )->m_pImpl->m_bAlreadyQueued = false;
-                        SP_ACCESS( frame )->m_pImpl->m_bAlreadyAnnounced = false;
-                        // End exclusive write lock frame handler
-                        SP_ACCESS(( *iter ))->ExitWriteLock();
-                        iter = m_pImpl->m_frameHandlers.Vector.erase( iter );
-                        return VmbErrorSuccess;
-                    }
-                    else
-                    {
-                        // End exclusive write lock frame handler
-                        SP_ACCESS(( *iter ))->ExitWriteLock();
-                        
-                        ++iter;
-                    }
+                    SP_ACCESS( frame )->m_pImpl->m_frame.context[FRAME_HDL] = NULL;
+                    SP_ACCESS( frame )->m_pImpl->m_bAlreadyQueued = false;
+                    SP_ACCESS( frame )->m_pImpl->m_bAlreadyAnnounced = false;
+                    // End exclusive write lock frame handler
+                    iter = m_pImpl->m_frameHandlers.Vector.erase( iter );
+                    return VmbErrorSuccess;
+                }
+                else
+                {
+                    ++iter;
                 }
             }
 
@@ -1077,18 +1078,11 @@ VmbErrorType Camera::RevokeAllFrames()
                     ++iter )
             {
                 // Begin exclusive write lock frame handler
-                if ( true == SP_ACCESS(( *iter ))->EnterWriteLock( true ))
-                {
-                    SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_frame.context[FRAME_HDL] = NULL;
-                    SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyQueued = false;
-                    SP_ACCESS (SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyAnnounced = false;
-                    // End exclusive write lock frame handler
-                    SP_ACCESS(( *iter ))->ExitWriteLock();
-                }
-                else
-                {
-                    LOG_FREE_TEXT( "Could not lock frame handler.")
-                }
+                MutexGuard  local_lock( SP_ACCESS((*iter))->Mutex() );
+                SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_frame.context[FRAME_HDL] = NULL;
+                SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyQueued = false;
+                SP_ACCESS (SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyAnnounced = false;
+                // End exclusive write lock frame handler
             }
 
             m_pImpl->m_frameHandlers.Vector.clear();
@@ -1160,28 +1154,24 @@ VmbErrorType Camera::FlushQueue()
                     m_pImpl->m_frameHandlers.Vector.end() != iter;)
             {
                 // Begin exclusive write lock of every single frame handler
-                if ( true == SP_ACCESS(( *iter ))->EnterWriteLock( true ))
+                MutexPtr tmpMutex = SP_ACCESS((*iter))->Mutex();
+                SP_ACCESS( tmpMutex )->Lock();
+                //SP_ACCESS(( *iter)) ->Mutex()->Lock();
+                // Dequeue frame
+                SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyQueued = false;
+                if ( false == SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyAnnounced )
                 {
-                    // Dequeue frame
-                    SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyQueued = false;
-                    if ( false == SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_bAlreadyAnnounced )
-                    {
-                        // Delete frame if it was not announced / was revoked before
-                        SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_frame.context[FRAME_HDL] = NULL;
-                        // End write lock frame handler
-                        SP_ACCESS(( *iter ))->ExitWriteLock();
-                        iter = m_pImpl->m_frameHandlers.Vector.erase( iter );
-                    }
-                    else
-                    {
-                        // End write lock frame handler
-                        SP_ACCESS(( *iter ))->ExitWriteLock();
-                        ++iter;
-                    }
+                    // Delete frame if it was not announced / was revoked before
+                    SP_ACCESS( SP_ACCESS(( *iter ))->GetFrame() )->m_pImpl->m_frame.context[FRAME_HDL] = NULL;
+                    // End write lock frame handler
+                    SP_ACCESS( tmpMutex )->Unlock();
+                    iter = m_pImpl->m_frameHandlers.Vector.erase( iter );
                 }
                 else
                 {
-                    LOG_FREE_TEXT( "Could not lock frame handler." );
+                    // End write lock frame handler
+                    SP_ACCESS( tmpMutex )->Unlock();
+                    ++iter;
                 }
             }
             // End write lock frame handler list
@@ -1259,17 +1249,43 @@ VmbErrorType Camera::SaveCameraSettings( const char * const pStrFileName, VmbFea
         return VmbErrorBadParameter;
     }
 
-//  get handle
-    VmbHandle_t handle = GetHandle();
-
-    if( NULL == pSettings )
+//  check internal settings struct variables
+    VmbBool_t useInternalStruct = true;
+    if( false == ((VmbFeaturePersistAll <= m_pImpl->m_persistType) && (VmbFeaturePersistNoLUT >= m_pImpl->m_persistType)) )
     {
-        err = (VmbErrorType)VmbCameraSettingsSave( handle, pStrFileName, NULL, 0 );
+        useInternalStruct = false;
+    }
+    if( false == ((0 < m_pImpl->m_maxIterations) && (10 > m_pImpl->m_maxIterations)) )
+    {
+        useInternalStruct = false;
+    }
+    if( false == ((0 < m_pImpl->m_loggingLevel) && (5 > m_pImpl->m_loggingLevel)) )
+    {
+        useInternalStruct = false;
+    }
+
+//  check if internal struct shall be used
+    if( VmbBoolTrue == useInternalStruct )
+    {
+        VmbFeaturePersistSettings_t newSettings;
+        newSettings.persistType = m_pImpl->m_persistType;
+        newSettings.maxIterations = m_pImpl->m_maxIterations;
+        newSettings.loggingLevel = m_pImpl->m_loggingLevel;
+        err = (VmbErrorType)VmbCameraSettingsSave( GetHandle(), pStrFileName, &newSettings, sizeof(newSettings) );
     }
     else
     {
-        err = (VmbErrorType)VmbCameraSettingsSave( handle, pStrFileName, pSettings, sizeof(pSettings) );
+        if( NULL == pSettings )
+        {
+            err = (VmbErrorType)VmbCameraSettingsSave( GetHandle(), pStrFileName, NULL, 0 );
+        }
+        else
+        {
+            err = (VmbErrorType)VmbCameraSettingsSave( GetHandle(), pStrFileName, pSettings, sizeof(*pSettings) );
+        }
     }
+
+
 
     return err;
 }
@@ -1302,16 +1318,40 @@ VmbErrorType Camera::LoadCameraSettings( const char * const pStrFileName, VmbFea
         return VmbErrorBadParameter;
     }
 
-//  get handle
-    VmbHandle_t handle = GetHandle();
-
-    if( NULL == pSettings )
+//  check internal settings struct variables
+    VmbBool_t useInternalStruct = true;
+    if( false == ((VmbFeaturePersistAll <= m_pImpl->m_persistType) && (VmbFeaturePersistNoLUT >= m_pImpl->m_persistType)) )
     {
-        err = (VmbErrorType)VmbCameraSettingsLoad( handle, pStrFileName, NULL, 0 );
+        useInternalStruct = false;
+    }
+    if( false == ((0 < m_pImpl->m_maxIterations) && (10 > m_pImpl->m_maxIterations)) )
+    {
+        useInternalStruct = false;
+    }
+    if( false == ((0 < m_pImpl->m_loggingLevel) && (5 > m_pImpl->m_loggingLevel)) )
+    {
+        useInternalStruct = false;
+    }
+
+//  check if internal struct shall be used
+    if( VmbBoolTrue == useInternalStruct )
+    {
+        VmbFeaturePersistSettings_t newSettings;
+        newSettings.persistType = m_pImpl->m_persistType;
+        newSettings.maxIterations = m_pImpl->m_maxIterations;
+        newSettings.loggingLevel = m_pImpl->m_loggingLevel;
+        err = (VmbErrorType)VmbCameraSettingsLoad( GetHandle(), pStrFileName, &newSettings, sizeof(newSettings) );
     }
     else
     {
-        err = (VmbErrorType)VmbCameraSettingsLoad( handle, pStrFileName, pSettings, sizeof(pSettings) );
+        if( NULL == pSettings )
+        {
+            err = (VmbErrorType)VmbCameraSettingsLoad( GetHandle(), pStrFileName, NULL, 0 );
+        }
+        else
+        {
+            err = (VmbErrorType)VmbCameraSettingsLoad( GetHandle(), pStrFileName, pSettings, sizeof(*pSettings) );
+        }
     }
 
     return err;
@@ -1332,29 +1372,29 @@ void Camera::LoadSaveSettingsSetup( VmbFeaturePersist_t persistType, VmbUint32_t
 {
     if( true == ((VmbFeaturePersistAll != persistType) && (VmbFeaturePersistStreamable != persistType) && (VmbFeaturePersistNoLUT != persistType)) )
     {
-        m_persistType = VmbFeaturePersistNoLUT;
+        m_pImpl->m_persistType = VmbFeaturePersistNoLUT;
     }
     else
     {
-        m_persistType = persistType;
+        m_pImpl->m_persistType = persistType;
     }
 
     if( false == ((0 < maxIterations) && (6 > maxIterations)) )
     {
-        m_maxIterations = 5;
+        m_pImpl->m_maxIterations = 5;
     }
     else
     {
-        m_maxIterations = maxIterations;
+        m_pImpl->m_maxIterations = maxIterations;
     }
 
     if( false == ((0 < loggingLevel) && (5 > loggingLevel)) )
     {
-        m_loggingLevel = 4;
+        m_pImpl->m_loggingLevel = 4;
     }
     else
     {
-        m_loggingLevel = loggingLevel;
+        m_pImpl->m_loggingLevel = loggingLevel;
     }
 }
 

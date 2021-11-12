@@ -9,7 +9,7 @@
   File:        Clock.cpp
 
   Description: Implementation of a platform independent Sleep.
-               (This include file is for internal use only.)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

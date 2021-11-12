@@ -1,5 +1,5 @@
 /*=============================================================================
-  Copyright (C) 2012 Allied Vision Technologies.  All Rights Reserved.
+  Copyright (C) 2012 - 2017 Allied Vision Technologies.  All Rights Reserved.
 
   Redistribution of this file, in original or modified form, without
   prior written consent of Allied Vision Technologies is prohibited.
@@ -31,7 +31,7 @@
 #define AVT_VMBAPI_SHAREDPOINTER_IMPL_H
 
 #include <VimbaCPP/Include/SharedPointer.h>
-
+#include <stdexcept>
 namespace AVT {
 namespace VmbAPI {
 
@@ -61,6 +61,8 @@ namespace VmbAPI {
         {
             delete m_pObject;
         }
+        
+        m_Mutex.Unlock();
     }
 
     template <class T>
@@ -77,7 +79,10 @@ namespace VmbAPI {
     void ref_count<T>::dec()
     {
         m_Mutex.Lock();
-
+        if( m_nCount == 0 )
+        {
+            throw std::logic_error("shared pointer, used incorectly");
+        }
         if(m_nCount > 1)
         {
             m_nCount--;
@@ -86,6 +91,7 @@ namespace VmbAPI {
         }
         else
         {
+            // m_Mutex will be unlocked in d'tor
             delete this;
         }
     }

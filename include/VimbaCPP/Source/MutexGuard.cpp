@@ -9,7 +9,7 @@
   File:        MutexGuard.cpp
 
   Description: Implementation of a mutex helper class for locking and unlocking.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 
@@ -34,10 +34,11 @@ namespace AVT {
 namespace VmbAPI {
 
 MutexGuard::MutexGuard()
+    : m_pMutex( NULL )
 {
 }
 
-MutexGuard::MutexGuard( MutexPtr pMutex )
+MutexGuard::MutexGuard( MutexPtr &pMutex )
 {
     if ( SP_ISNULL( pMutex ))
     {
@@ -45,7 +46,8 @@ MutexGuard::MutexGuard( MutexPtr pMutex )
     }
     else
     {
-        Protect( pMutex );
+        m_pMutex = SP_ACCESS(pMutex );
+        Protect( );
     }
 }
 
@@ -57,13 +59,15 @@ MutexGuard::MutexGuard( BasicLockablePtr pLockable )
     }
     else
     {
-        Protect( pLockable );
+        m_pMutex = SP_ACCESS(SP_ACCESS(pLockable)->GetMutex());
+        Protect( );
     }
 }
 
 MutexGuard::MutexGuard( const BasicLockable &rLockable )
 {
-    Protect( rLockable );
+    m_pMutex = SP_ACCESS(rLockable.GetMutex() );
+    Protect( );
 }
 
 MutexGuard::~MutexGuard()
@@ -71,50 +75,26 @@ MutexGuard::~MutexGuard()
     Release();
 }
 
-void MutexGuard::Protect( MutexPtr pMutex )
+void MutexGuard::Protect(  )
 {
-    if( SP_ISNULL( pMutex ))
+    if( m_pMutex == NULL )
     {
         LOG_FREE_TEXT( "No mutex passed." );
-    }
-
-    else if( SP_ISEQUAL( pMutex, m_pMutex ))
-    {
         return;
     }
-
-    Release();
-
-    SP_ACCESS( pMutex )->Lock();
-    m_pMutex = pMutex;
+    m_pMutex->Lock();
 }
 
-void MutexGuard::Protect( BasicLockablePtr pLockable )
-{
-    if( SP_ISNULL( SP_ACCESS( pLockable )->GetMutex() ))
-    {
-        LOG_FREE_TEXT( "No mutex passed." );
-    }
-    else
-    {
-        Protect( SP_ACCESS( pLockable )->GetMutex() );
-    }
-}
-
-void MutexGuard::Protect( const BasicLockable &rLockable )
-{
-    Protect( rLockable.GetMutex() );
-}
 
 bool MutexGuard::Release()
 {
-    if( SP_ISNULL( m_pMutex ))
+    if( m_pMutex == NULL)
     {
         return false;
     }
 
-    SP_ACCESS( m_pMutex )->Unlock();
-    SP_RESET( m_pMutex );
+    m_pMutex ->Unlock();
+    m_pMutex = NULL;
 
     return true;
 }

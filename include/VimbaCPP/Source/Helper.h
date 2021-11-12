@@ -9,7 +9,7 @@
   File:        Helper.h
 
   Description: Definition of helper classes (types)
-               (This include file is for internal use only.)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

@@ -9,7 +9,7 @@
   File:        ConditionHelper.cpp
 
   Description: Implementation of helper class for conditions.
-               (This include file is for internal use only.)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ bool ConditionHelper::EnterReadLock( BasicLockable &rLockable )
 {
     return EnterReadLock( rLockable.GetMutex() );
 }
-bool ConditionHelper::EnterReadLock( MutexPtr pMutex )
+bool ConditionHelper::EnterReadLock( MutexPtr &pMutex )
 {
     MutexGuard guard( pMutex );
     if ( true == m_bExclusive )
@@ -66,7 +66,7 @@ void ConditionHelper::ExitReadLock( BasicLockable &rLockable )
 {
     ExitReadLock( rLockable.GetMutex() );
 }
-void ConditionHelper::ExitReadLock( MutexPtr pMutex )
+void ConditionHelper::ExitReadLock( MutexPtr &pMutex )
 {
     MutexGuard guard( pMutex );    
     if ( 0 == --m_nNumListReads )
@@ -80,7 +80,7 @@ bool ConditionHelper::EnterWriteLock( BasicLockable &rLockable, bool bExclusive 
 {
     return EnterWriteLock( rLockable.GetMutex(), bExclusive );
 }
-bool ConditionHelper::EnterWriteLock( MutexPtr pMutex, bool bExclusive )
+bool ConditionHelper::EnterWriteLock( MutexPtr &pMutex, bool bExclusive )
 {
     MutexGuard guard( pMutex );
     if ( true == m_bExclusive )
@@ -107,7 +107,7 @@ void ConditionHelper::ExitWriteLock( BasicLockable &rLockable )
 {
     ExitWriteLock( rLockable.GetMutex() );
 }
-void ConditionHelper::ExitWriteLock( MutexPtr pMutex )
+void ConditionHelper::ExitWriteLock( MutexPtr &pMutex )
 {
     MutexGuard guard( pMutex );
     m_bIsWritingList = false;

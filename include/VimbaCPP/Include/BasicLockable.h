@@ -9,7 +9,6 @@
   File:        BasicLockable.h
 
   Description: Definition of class AVT::VmbAPI::BasicLockable.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 
@@ -44,7 +43,8 @@ class BasicLockable
 
     IMEXPORT virtual ~BasicLockable();
 
-    MutexPtr GetMutex() const;
+    MutexPtr& GetMutex();
+    const MutexPtr& GetMutex() const;
 
     void Lock()
     {

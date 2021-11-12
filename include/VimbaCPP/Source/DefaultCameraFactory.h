@@ -11,7 +11,7 @@
   Description: Definition of class AVT::VmbAPI::DefaultCameraFactory used to
                create new Camera objects if no user defined camera factory
                class was provided.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

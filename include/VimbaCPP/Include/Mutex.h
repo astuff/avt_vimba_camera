@@ -9,7 +9,6 @@
   File:        Mutex.h
 
   Description: Definition of class AVT::VmbAPI::Mutex.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 

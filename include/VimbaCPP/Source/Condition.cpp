@@ -9,7 +9,7 @@
   File:        Condition.cpp
 
   Description: Implementation of a condition class.
-               (This include file is for internal use only.)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

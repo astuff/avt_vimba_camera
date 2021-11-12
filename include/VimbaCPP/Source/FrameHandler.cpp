@@ -25,9 +25,10 @@
 
 =============================================================================*/
 
-#include <VimbaCPP/Source/FrameHandler.h>
+#include "VimbaCPP/Source/FrameHandler.h"
 
-#include <VimbaCPP/Include/LoggerDefines.h>
+#include "VimbaCPP/Include/LoggerDefines.h"
+#include "VimbaCPP/Source/MutexGuard.h"
 
 namespace AVT {
 namespace VmbAPI {
@@ -35,33 +36,13 @@ namespace VmbAPI {
 FrameHandler::FrameHandler( FramePtr pFrame, IFrameObserverPtr pFrameObserver )
     :   m_pFrame( pFrame )
     ,   m_pObserver( pFrameObserver )
-    ,   m_pMutex( new Mutex() )
+    ,   m_pMutex( new AVT::VmbAPI::Mutex() )
 {
 }
 
 FramePtr FrameHandler::GetFrame() const
 {
     return m_pFrame;
-}
-
-bool FrameHandler::EnterWriteLock( bool bExclusive )
-{
-    return m_conditionHelper.EnterWriteLock( m_pMutex, bExclusive );
-}
-
-void FrameHandler::ExitWriteLock()
-{
-    m_conditionHelper.ExitWriteLock( m_pMutex );
-}
-
-bool FrameHandler::EnterReadLock()
-{
-    return m_conditionHelper.EnterReadLock( m_pMutex );
-}
-
-void FrameHandler::ExitReadLock()
-{
-    m_conditionHelper.ExitReadLock( m_pMutex );
 }
 
 void VMB_CALL FrameHandler::FrameDoneCallback( const VmbHandle_t /*handle*/, VmbFrame_t *pVmbFrame )
@@ -72,23 +53,14 @@ void VMB_CALL FrameHandler::FrameDoneCallback( const VmbHandle_t /*handle*/, Vmb
         if ( NULL != pFrameHandler)
         {            
             // Begin read lock frame handler
-
-            if ( true == pFrameHandler->EnterReadLock() )
+            MutexGuard local_lock( pFrameHandler->Mutex() );
             {
+                IFrameObserverPtr pObs;
+                if ( true == SP_ACCESS( pFrameHandler->m_pFrame )->GetObserver( pObs ))
                 {
-                    IFrameObserverPtr pObs;
-                    if ( true == SP_ACCESS( pFrameHandler->m_pFrame )->GetObserver( pObs ))
-                    {
-                        SP_ACCESS( pObs )->FrameReceived( pFrameHandler->m_pFrame );
-                    }
-                }// scope to destroy observer pointer before releasing the lock
-                // End read lock frame handler
-                pFrameHandler->ExitReadLock();
-            }
-            else
-            {
-                LOG_FREE_TEXT( "Could not lock frame handler. Skipping frame." )
-            }
+                    SP_ACCESS( pObs )->FrameReceived( pFrameHandler->m_pFrame );
+                }
+            }// scope to destroy observer pointer before releasing the lock
         }
         else // No FrameHandler
         {

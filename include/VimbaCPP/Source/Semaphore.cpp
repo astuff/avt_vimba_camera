@@ -9,7 +9,7 @@
   File:        Semaphore.cpp
 
   Description: Implementation of an semaphore class.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

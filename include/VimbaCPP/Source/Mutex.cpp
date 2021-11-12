@@ -9,7 +9,6 @@
   File:        Mutex.cpp
 
   Description: Implementation of class AVT::VmbAPI::Mutex.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 

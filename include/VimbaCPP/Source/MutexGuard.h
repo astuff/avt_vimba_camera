@@ -9,7 +9,7 @@
   File:        MutexGuard.h
 
   Description: Definition of a mutex helper class for locking and unlocking.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 
@@ -41,19 +41,16 @@ class MutexGuard
 {
   public:
     MutexGuard();
-    MutexGuard( MutexPtr pMutex );
+    MutexGuard( MutexPtr &pMutex );
     MutexGuard( BasicLockablePtr pLockable );
     MutexGuard( const BasicLockable &rLockable );
     ~MutexGuard();
 
-    void Protect( MutexPtr pMutex );
-    void Protect( BasicLockablePtr pLockable );
-    void Protect( const BasicLockable &rLockable );
-
+    void Protect();
     bool Release();
 
   protected:
-    MutexPtr m_pMutex;
+    Mutex  *m_pMutex;
 };
 
 } //namespace VmbAPI

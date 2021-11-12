@@ -10,7 +10,6 @@
 
   Description: Inline wrapper functions for class 
                AVT::VmbAPI::FeatureContainer.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 

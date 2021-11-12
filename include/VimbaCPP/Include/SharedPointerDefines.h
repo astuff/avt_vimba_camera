@@ -10,7 +10,6 @@
 
   Description: Definition of macros for using the standard shared pointer 
                (std::tr1) for Vimba CPP API.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 

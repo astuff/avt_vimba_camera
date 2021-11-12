@@ -9,7 +9,7 @@
   File:        FloatFeature.cpp
 
   Description: Implementation of class AVT::VmbAPI::FloatFeature.
-               (For internal use only)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 

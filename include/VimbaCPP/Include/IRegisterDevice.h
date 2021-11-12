@@ -93,7 +93,7 @@ class IRegisterDevice
     //
     // Parameters:  [in ]   const Uint64Vector&   addresses         A list of register addresses
     //              [in ]   const Uint64Vector&   buffer            The data to write as vector
-    //              [out]   VmbUint32_t&          completedWrites   The number of successfully read registers
+    //              [out]   VmbUint32_t&          completedWrites   The number of successfully written registers
     //
     // Returns:
     //  - VmbErrorSuccess:      If all requested registers have been written

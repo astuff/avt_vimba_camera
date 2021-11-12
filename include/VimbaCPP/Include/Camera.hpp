@@ -9,7 +9,6 @@
   File:        Camera.hpp
 
   Description: Inline wrapper functions for class AVT::VmbAPI::Camera.
-               (This include file is for internal use only.)
 
 -------------------------------------------------------------------------------
 
@@ -295,86 +294,24 @@ inline VmbErrorType Camera::WriteMemory( const VmbUint64_t &rAddress, const Ucha
 
 inline VmbErrorType Camera::SaveCameraSettings( std::string strFileName, VmbFeaturePersistSettings_t *pSettings ) const
 {
-    VmbErrorType err = VmbErrorSuccess;
-
 //  parameter check
     if( true == strFileName.empty() )
     {
         return VmbErrorBadParameter;
     }
 
-//  check internal settings struct variables
-    VmbBool_t useInternalStruct = true;
-    if( false == ((0 <= m_persistType) && (3 > m_persistType)) )
-    {
-        useInternalStruct = false;
-    }
-    if( false == ((0 < m_maxIterations) && (10 > m_maxIterations)) )
-    {
-        useInternalStruct = false;
-    }
-    if( false == ((0 < m_loggingLevel) && (5 > m_loggingLevel)) )
-    {
-        useInternalStruct = false;
-    }
-
-//  check if internal struct shall be used
-    if( VmbBoolTrue == useInternalStruct )
-    {
-        VmbFeaturePersistSettings_t newSettings;
-        newSettings.persistType = m_persistType;
-        newSettings.maxIterations = m_maxIterations;
-        newSettings.loggingLevel = m_loggingLevel;
-        err = SaveCameraSettings( strFileName.c_str(), &newSettings );
-    }
-    else
-    {
-        err = SaveCameraSettings( strFileName.c_str(), pSettings );
-    }
-
-    return err;
+    return SaveCameraSettings( strFileName.c_str(), pSettings );
 }
 
 inline VmbErrorType Camera::LoadCameraSettings( std::string strFileName, VmbFeaturePersistSettings_t *pSettings ) const
 {
-    VmbErrorType err = VmbErrorSuccess;
-
 //  parameter check
     if( true == strFileName.empty() )
     {
         return VmbErrorBadParameter;
     }
 
-//  check internal settings struct variables
-    VmbBool_t useInternalStruct = true;
-    if( false == ((0 <= m_persistType) && (3 > m_persistType)) )
-    {
-        useInternalStruct = false;
-    }
-    if( false == ((0 < m_maxIterations) && (10 > m_maxIterations)) )
-    {
-        useInternalStruct = false;
-    }
-    if( false == ((0 < m_loggingLevel) && (5 > m_loggingLevel)) )
-    {
-        useInternalStruct = false;
-    }
-
-//  check if internal struct shall be used
-    if( VmbBoolTrue == useInternalStruct )
-    {
-        VmbFeaturePersistSettings_t newSettings;
-        newSettings.persistType = m_persistType;
-        newSettings.maxIterations = m_maxIterations;
-        newSettings.loggingLevel = m_loggingLevel;
-        err = LoadCameraSettings( strFileName.c_str(), &newSettings );
-    }
-    else
-    {
-        err = LoadCameraSettings( strFileName.c_str(), pSettings );
-    }
-
-    return err;
+    return LoadCameraSettings( strFileName.c_str(), pSettings );
 }
 
 #endif

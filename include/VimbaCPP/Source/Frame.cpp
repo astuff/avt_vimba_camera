@@ -25,14 +25,14 @@
 
 =============================================================================*/
 
-#include <VimbaCPP/Include/Frame.h>
+#include "VimbaCPP/Include/Frame.h"
 
-#include <VimbaCPP/Include/LoggerDefines.h>
-#include <VimbaCPP/Include/VimbaSystem.h>
-#include <VimbaCPP/Source/ConditionHelper.h>
-#include <VimbaCPP/Include/SharedPointerDefines.h>
-#include <VimbaCPP/Source/FrameImpl.h>
-
+#include "VimbaCPP/Include/LoggerDefines.h"
+#include "VimbaCPP/Include/VimbaSystem.h"
+#include "VimbaCPP/Source/ConditionHelper.h"
+#include "VimbaCPP/Include/SharedPointerDefines.h"
+#include "VimbaCPP/Source/FrameImpl.h"
+#include "VimbaCPP/Source/MutexGuard.h"
 namespace AVT {
 namespace VmbAPI {
 
@@ -128,20 +128,9 @@ VmbErrorType Frame::RegisterObserver( const IFrameObserverPtr &rObserver )
     }
 
     // Begin exclusive write lock observer
-    if ( true == m_pImpl->m_observerConditionHelper.EnterWriteLock( m_pImpl->m_pObserverMutex, true ))
-    {
-        m_pImpl->m_pObserver = rObserver;
-
-        // End write lock observer
-        m_pImpl->m_observerConditionHelper.ExitWriteLock( m_pImpl->m_pObserverMutex );
-        
-        return VmbErrorSuccess;
-    }
-    else
-    {
-        LOG_FREE_TEXT( "Could not lock frame observer.")
-        return VmbErrorResources;
-    }
+    MutexGuard local_lock( m_pImpl->m_pObserverMutex );
+    m_pImpl->m_pObserver = rObserver;
+    return VmbErrorSuccess;
 }
 
 VmbErrorType Frame::UnregisterObserver()
@@ -149,50 +138,27 @@ VmbErrorType Frame::UnregisterObserver()
     VmbErrorType res = VmbErrorSuccess;
 
     // Begin exclusive write lock observer
-    if ( true == m_pImpl->m_observerConditionHelper.EnterWriteLock( m_pImpl->m_pObserverMutex, true ))
+    MutexGuard local_lock( m_pImpl->m_pObserverMutex );
+    if ( SP_ISNULL( m_pImpl->m_pObserver ))
     {
-        if ( SP_ISNULL( m_pImpl->m_pObserver ))
-        {
-            res = VmbErrorNotFound;
-        }
-        else
-        {
-            SP_RESET( m_pImpl->m_pObserver );
-        }
-
-        // End exclusive write lock observer
-        m_pImpl->m_observerConditionHelper.ExitWriteLock( m_pImpl->m_pObserverMutex );
+        res = VmbErrorNotFound;
     }
     else
     {
-        LOG_FREE_TEXT( "Could not lock frame observer.")
-        res = VmbErrorResources;
+        SP_RESET( m_pImpl->m_pObserver );
     }
-
     return res;
 }
 
 bool Frame::GetObserver( IFrameObserverPtr &rObserver ) const
 {
+    MutexGuard local_lock( m_pImpl->m_pObserverMutex );
     if ( SP_ISNULL( m_pImpl->m_pObserver ))
     {
         return false;
     }
-
-    // Begin read lock observer
-    if ( true == m_pImpl->m_observerConditionHelper.EnterReadLock( m_pImpl->m_pObserverMutex ))
-    {
-        rObserver = m_pImpl->m_pObserver;
-        // End read lock observer
-        m_pImpl->m_observerConditionHelper.ExitReadLock( m_pImpl->m_pObserverMutex );
-        return true;
-    }
-    else
-    {
-        LOG_FREE_TEXT( "Could not lock frame observer.")
-    }
-
-    return false;
+    rObserver = m_pImpl->m_pObserver;
+    return true;
 }
 
 VmbErrorType Frame::GetAncillaryData( AncillaryDataPtr &rAncillaryData )

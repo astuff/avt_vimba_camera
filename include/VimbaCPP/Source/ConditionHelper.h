@@ -9,7 +9,7 @@
   File:        ConditionHelper.h
 
   Description: Definition of helper class for conditions.
-               (This include file is for internal use only.)
+               Intended for use in the implementation of Vimba CPP API.
 
 -------------------------------------------------------------------------------
 
@@ -44,16 +44,16 @@ class ConditionHelper
     // Waits until writing access has finished and returns true.
     // If exclusive writing access was granted the function exits immediately without locking and returns false
     bool EnterReadLock( BasicLockable &rLockable );
-    bool EnterReadLock( MutexPtr pMutex );
+    bool EnterReadLock( MutexPtr &pMutex );
     void ExitReadLock( BasicLockable &rLockable );
-    void ExitReadLock( MutexPtr pMutex );
+    void ExitReadLock( MutexPtr &pMutex );
 
     // Waits until writing and reading access have finished and returns true.
     // If exclusive writing access was granted the function exits immediately without locking and returns false
     bool EnterWriteLock( BasicLockable &rLockable, bool bExclusive = false );
-    bool EnterWriteLock( MutexPtr pMutex, bool bExclusive = false );
+    bool EnterWriteLock( MutexPtr &pMutex, bool bExclusive = false );
     void ExitWriteLock( BasicLockable &rLockable );
-    void ExitWriteLock( MutexPtr pMutex );
+    void ExitWriteLock( MutexPtr &pMutex );
 
   private:
     Condition                           m_ReadCondition;

@@ -9,7 +9,6 @@
   File:        VimbaSystem.hpp
 
   Description: Inline wrapper functions for class AVT::VmbAPI::VimbaSystem.
-               (This include file is for internal use only.)
 
   -----------------------------------------------------------------------------
 
@@ -82,6 +81,10 @@ inline VmbErrorType VimbaSystem::GetCameras( CameraPtrVector &rCameras )
                 res = GetCameras( &tmpCameras[0], nSize );
                 if( VmbErrorSuccess == res )
                 {
+                    if( nSize < tmpCameras.size() )
+                    {
+                        tmpCameras.resize( nSize);
+                    }
                     rCameras.swap( tmpCameras );
                 }
             }

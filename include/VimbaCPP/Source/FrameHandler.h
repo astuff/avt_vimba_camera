@@ -30,12 +30,12 @@
 
 #include <vector>
 
-#include <VimbaC/Include/VmbCommonTypes.h>
-#include <VimbaCPP/Include/BasicLockable.h>
-#include <VimbaCPP/Include/SharedPointerDefines.h>
-#include <VimbaCPP/Include/Frame.h>
-#include <VimbaCPP/Include/IFrameObserver.h>
-#include <VimbaCPP/Source/ConditionHelper.h>
+#include "VimbaC/Include/VmbCommonTypes.h"
+#include "VimbaCPP/Include/BasicLockable.h"
+#include "VimbaCPP/Include/SharedPointerDefines.h"
+#include "VimbaCPP/Include/Frame.h"
+#include "VimbaCPP/Include/IFrameObserver.h"
+#include "VimbaCPP/Include/Mutex.h"
 
 namespace AVT {
 namespace VmbAPI {
@@ -50,16 +50,10 @@ class FrameHandler
     FrameHandler( FramePtr pFrame, IFrameObserverPtr pFrameObserver );
 
     FramePtr GetFrame() const;
-
-    bool EnterWriteLock( bool bExclusive = false );
-    void ExitWriteLock();
-    bool EnterReadLock();
-    void ExitReadLock();
-
+    MutexPtr&               Mutex() { return m_pMutex; }
   private:
     IFrameObserverPtr       m_pObserver;
     FramePtr                m_pFrame;
-    ConditionHelper         m_conditionHelper;
     MutexPtr                m_pMutex;
 };
 
