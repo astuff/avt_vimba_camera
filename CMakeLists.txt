@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 2.8.3)
 project(avt_vimba_camera)
 
 find_package(catkin REQUIRED COMPONENTS
-  #libvimba
   camera_info_manager
   diagnostic_updater
   dynamic_reconfigure
@@ -37,7 +36,6 @@ catkin_package(
 ###########
 
 include_directories(
-  #${libvimba_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   include
 )
@@ -57,16 +55,9 @@ endif()
 function(add_dependencies_and_linkings arg)
   add_dependencies(${arg}
     ${PROJECT_NAME}_gencfg
-    #${libvimba_EXPORTED_TARGETS}
   )
 
-  if("${ARCH}" STREQUAL i386)
-    target_link_libraries(${arg}
-      ${catkin_LIBRARIES}
-      ${CMAKE_CURRENT_SOURCE_DIR}/lib/32bit/libVimbaC.so
-      ${CMAKE_CURRENT_SOURCE_DIR}/lib/32bit/libVimbaCPP.so
-    )
-  elseif("${ARCH}" STREQUAL x86_64)
+  if("${ARCH}" STREQUAL x86_64)
     target_link_libraries(${arg}
       ${catkin_LIBRARIES}
       ${CMAKE_CURRENT_SOURCE_DIR}/lib/64bit/libVimbaC.so
@@ -151,13 +142,7 @@ install(DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
-if("${ARCH}" STREQUAL i386)
-  install(FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/32bit/libVimbaC.so
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/32bit/libVimbaCPP.so
-    DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  )
-elseif("${ARCH}" STREQUAL x86_64)
+if("${ARCH}" STREQUAL x86_64)
   install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/64bit/libVimbaC.so
     ${CMAKE_CURRENT_SOURCE_DIR}/lib/64bit/libVimbaCPP.so
