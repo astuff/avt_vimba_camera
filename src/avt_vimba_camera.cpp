@@ -52,7 +52,8 @@ static const char* TriggerMode[] = {
   "Line2",
   "Line3",
   "Line4",
-  "Action0"};
+  "Action0",
+  "Action1"};
 static const char* AcquisitionMode[] = {
   "Continuous",
   "SingleFrame",
@@ -195,7 +196,8 @@ void AvtVimbaCamera::start(std::string ip_str, std::string guid_str, bool debug_
   if (trigger_source_int == Freerun   ||
       trigger_source_int == FixedRate ||
       trigger_source_int == SyncIn1   ||
-      trigger_source_int == Action0) {
+      trigger_source_int == Action0   ||
+      trigger_source_int == Action1) {
     // Create a frame observer for this camera
     SP_SET(frame_obs_ptr_, new FrameObserver(vimba_camera_ptr_,
       boost::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, _1)));
@@ -663,6 +665,8 @@ int AvtVimbaCamera::getTriggerModeInt(std::string mode_str) {
     mode = SyncIn4;
   } else if (mode_str == TriggerMode[Action0]) {
     mode = Action0;
+  } else if (mode_str == TriggerMode[Action1]) {
+    mode = Action1;
   }
   return mode;
 }

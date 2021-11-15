@@ -62,7 +62,8 @@ enum FrameStartTriggerMode {
   SyncIn2,
   SyncIn3,
   SyncIn4,
-  Action0
+  Action0,
+  Action1
 };
 
 enum CameraState {
