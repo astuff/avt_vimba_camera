@@ -51,7 +51,8 @@ static const char* TriggerMode[] = {
   "Line1",
   "Line2",
   "Line3",
-  "Line4" };
+  "Line4",
+  "Action0"};
 static const char* AcquisitionMode[] = {
   "Continuous",
   "SingleFrame",
@@ -123,6 +124,8 @@ AvtVimbaCamera::AvtVimbaCamera(std::string name) {
   show_debug_prints_ = false;
   name_ = name;
 
+  signal(SIGINT, intHandler);
+
   camera_state_ = OPENING;
 
   updater_.setHardwareID("unknown");
@@ -182,6 +185,7 @@ void AvtVimbaCamera::start(std::string ip_str, std::string guid_str, bool debug_
   vimba_camera_ptr_->GetInterfaceType(cam_int_type);
   if ( cam_int_type == VmbInterfaceEthernet ){
     runCommand("GVSPAdjustPacketSize");
+
   }
 
   std::string trigger_source;
@@ -190,7 +194,8 @@ void AvtVimbaCamera::start(std::string ip_str, std::string guid_str, bool debug_
 
   if (trigger_source_int == Freerun   ||
       trigger_source_int == FixedRate ||
-      trigger_source_int == SyncIn1) {
+      trigger_source_int == SyncIn1   ||
+      trigger_source_int == Action0) {
     // Create a frame observer for this camera
     SP_SET(frame_obs_ptr_, new FrameObserver(vimba_camera_ptr_,
       boost::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, _1)));
@@ -307,9 +312,6 @@ CameraPtr AvtVimbaCamera::openCamera(std::string id_str) {
   CameraPtr camera;
   VimbaSystem& vimba_system(VimbaSystem::GetInstance());
 
-  // set handler to catch ctrl+c presses
-  sighandler_t oldHandler = signal(SIGINT, intHandler);
-
   // get camera
   VmbErrorType err = vimba_system.GetCameraByID(id_str.c_str(), camera);
   while (err != VmbErrorSuccess) {
@@ -341,9 +343,6 @@ CameraPtr AvtVimbaCamera::openCamera(std::string id_str) {
       return camera;
     }
   }
-
-  // set previous handler back
-  signal(SIGINT, oldHandler);
 
   std::string cam_id, cam_name, cam_model, cam_sn, cam_int_id;
   VmbInterfaceType cam_int_type;
@@ -662,6 +661,8 @@ int AvtVimbaCamera::getTriggerModeInt(std::string mode_str) {
     mode = SyncIn3;
   } else if (mode_str == TriggerMode[SyncIn4]) {
     mode = SyncIn4;
+  } else if (mode_str == TriggerMode[Action0]) {
+    mode = Action0;
   }
   return mode;
 }
@@ -844,6 +845,18 @@ void AvtVimbaCamera::updateAcquisitionConfig(Config& config) {
   if (config.trigger_delay != config_.trigger_delay || on_init_) {
     changed = true;
     setFeatureValue("TriggerDelayAbs", config.trigger_delay);
+  }
+  if (config.action_device_key != config_.action_device_key || on_init_) {
+    changed = true;
+    setFeatureValue("ActionDeviceKey", config.action_device_key);
+  }
+  if (config.action_group_key != config_.action_group_key || on_init_) {
+    changed = true;
+    setFeatureValue("ActionGroupKey", config.action_group_key);
+  }
+  if (config.action_group_mask != config_.action_group_mask || on_init_) {
+    changed = true;
+    setFeatureValue("ActionGroupMask", config.action_group_mask);
   }
   if(changed && show_debug_prints_){
     ROS_INFO_STREAM("New Acquisition and Trigger config (" << config.frame_id << ") : "

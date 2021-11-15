@@ -273,6 +273,9 @@ void StereoCamera::copyConfig(StereoConfig& sc, Config& lc, Config& rc) {
   lc.trigger_selector = sc.left_trigger_selector;
   lc.trigger_activation = sc.left_trigger_activation;
   lc.trigger_delay = sc.left_trigger_delay;
+  lc.action_device_key = sc.left_action_device_key;
+  lc.action_group_key = sc.left_action_group_key;
+  lc.action_group_mask = sc.left_action_group_mask;
   lc.exposure = sc.exposure;
   lc.exposure_auto = sc.exposure_auto;
   lc.exposure_auto_alg = sc.exposure_auto_alg;
@@ -322,6 +325,9 @@ void StereoCamera::copyConfig(StereoConfig& sc, Config& lc, Config& rc) {
   rc.trigger_selector = sc.right_trigger_selector;
   rc.trigger_activation = sc.right_trigger_activation;
   rc.trigger_delay = sc.right_trigger_delay;
+  rc.action_device_key = sc.right_action_device_key;
+  rc.action_group_key = sc.right_action_group_key;
+  rc.action_group_mask = sc.right_action_group_mask;
   rc.exposure = sc.exposure;
   rc.exposure_auto = sc.exposure_auto;
   rc.exposure_auto_alg = sc.exposure_auto_alg;
