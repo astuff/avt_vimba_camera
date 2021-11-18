@@ -105,6 +105,13 @@ add_executable(sync_node
 
 add_dependencies_and_linkings(sync_node)
 
+add_executable(trigger_node
+  src/nodes/trigger_node.cpp
+  src/trigger.cpp
+)
+
+add_dependencies_and_linkings(trigger_node)
+
 add_library(avt_camera_nodelets
   src/nodes/mono_camera_nodelet.cpp
   src/nodes/stereo_camera_nodelet.cpp
