@@ -2,7 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-	ros::init(argc, argv, "trigger_node");
+  ros::init(argc, argv, "trigger_node");
 
   trigger::Trigger trigger;
   trigger.Init();

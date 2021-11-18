@@ -128,10 +128,4 @@ void Trigger::SendActionCommand()
   }
 }
 
-
 }  // namespace trigger
-
-
-
-
-
