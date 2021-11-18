@@ -4,12 +4,8 @@ int main(int argc, char* argv[])
 {
 	ros::init(argc, argv, "trigger_node");
 
-  // ros::NodeHandle nh;
-  // ros::NodeHandle nhp("~");
-
-  // avt_vimba_camera::MonoCamera mc(nh,nhp);
-
   trigger::Trigger trigger;
+  trigger.Init();
 
   ros::spin();
   return 0;

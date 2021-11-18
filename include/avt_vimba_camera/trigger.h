@@ -7,6 +7,8 @@
 
 #include <ros/ros.h>
 
+#include <std_msgs/Bool.h>
+
 namespace trigger
 {
 
@@ -16,27 +18,34 @@ public:
   Trigger();
   ~Trigger();
 
+  void Init();
+
 private:
   void LoadParams();
   void InitializeAddress();
-  void PrepareActionCommand();
+  bool PrepareActionCommand();
   bool SetIntFeatureValue(const std::string& name, int64_t value);
-  void SendActionCommand();
 
-  ros::NodeHandle pnh_;
-  ros::NodeHandle nh_;
+  void TimerCb(const ros::TimerEvent& event);
+  void TriggerCb(const std_msgs::Bool::ConstPtr& msg);
+  void SendActionCommand();
 
   AVT::VmbAPI::VimbaSystem& vimba_system_;
   AVT::VmbAPI::InterfacePtr interface_ptr_;
 
-  // uint32_t action_device_key_;
-  // uint32_t action_group_key_;
-  // uint32_t action_group_mask_;
+  ros::NodeHandle pnh_;
+  ros::NodeHandle nh_;
+
+  ros::Timer trigger_timer_;
+  ros::Subscriber trigger_sub_;
+
+  // Params
+  struct in_addr destination_ip_;
+  std::string trigger_src_;
+  float timer_period_;
   int action_device_key_;
   int action_group_key_;
   int action_group_mask_;
-
-  struct in_addr destination_ip_;
 };
 
 }  // namespace trigger

@@ -6,14 +6,6 @@ namespace trigger
 Trigger::Trigger() : vimba_system_(AVT::VmbAPI::VimbaSystem::GetInstance()), pnh_("~")
 {
   vimba_system_.Startup();
-
-  // Load ROS params
-  LoadParams();
-
-  InitializeAddress();
-  PrepareActionCommand();
-
-  SendActionCommand();
 }
 
 Trigger::~Trigger()
@@ -21,13 +13,35 @@ Trigger::~Trigger()
   vimba_system_.Shutdown();
 }
 
+void Trigger::Init()
+{
+  LoadParams();
+  InitializeAddress();
+
+  if (trigger_src_ == "timer")
+  {
+    trigger_timer_ = nh_.createTimer(ros::Duration(timer_period_), &Trigger::TimerCb, this);
+  }
+  else if (trigger_src_ == "subscriber")
+  {
+    trigger_sub_ = nh_.subscribe("trigger_input", 10, &Trigger::TriggerCb, this);
+  }
+  else
+  {
+    ROS_ERROR("Unknown trigger_src %s", trigger_src_.c_str());
+    ros::shutdown();
+  }
+}
+
 void Trigger::LoadParams()
 {
   std::string destination_ip;
+  pnh_.param<std::string>("destination_ip", destination_ip, "192.168.3.40");
+  pnh_.param<std::string>("trigger_src", trigger_src_, "timer");
+  pnh_.param<float>("timer_period", timer_period_, 0.1);
   pnh_.param<int>("action_device_key", action_device_key_, 1);
   pnh_.param<int>("action_group_key", action_group_key_, 1);
   pnh_.param<int>("action_group_mask", action_group_mask_, 1);
-  pnh_.param<std::string>("destination_ip", destination_ip, "192.168.3.40");
 
   if(inet_aton(destination_ip.c_str(), &destination_ip_) == 0)
   {
@@ -48,21 +62,11 @@ void Trigger::InitializeAddress()
   ROS_INFO("Destination address set");
 }
 
-void Trigger::PrepareActionCommand()
+bool Trigger::PrepareActionCommand()
 {
-  VmbErrorType return_value = VmbErrorSuccess;
-
-  if (SetIntFeatureValue("ActionDeviceKey", 1) &&
-      SetIntFeatureValue("ActionGroupKey", 1) &&
-      SetIntFeatureValue("ActionGroupMask", 1))
-  {
-    ROS_INFO("Action command ready");
-  }
-  else
-  {
-    ROS_ERROR("Failed to prepare action command");
-    ros::shutdown();
-  }
+  return (SetIntFeatureValue("ActionDeviceKey", 1) &&
+          SetIntFeatureValue("ActionGroupKey", 1) &&
+          SetIntFeatureValue("ActionGroupMask", 1));
 }
 
 // Sets an integer feature value on the vimba system
@@ -86,8 +90,24 @@ bool Trigger::SetIntFeatureValue(const std::string& name, int64_t value)
   return (return_value == VmbErrorSuccess);
 }
 
+void Trigger::TimerCb(const ros::TimerEvent& event)
+{
+  SendActionCommand();
+}
+
+void Trigger::TriggerCb(const std_msgs::Bool::ConstPtr& msg)
+{
+  SendActionCommand();
+}
+
 void Trigger::SendActionCommand()
 {
+  if (!PrepareActionCommand())
+  {
+    ROS_ERROR_THROTTLE(1.0, "Failed to prepare action command");
+    return;
+  }
+
   VmbErrorType return_value = VmbErrorSuccess;
 
   AVT::VmbAPI::FeaturePtr lFeature;
@@ -104,7 +124,7 @@ void Trigger::SendActionCommand()
   }
   else
   {
-    ROS_ERROR("Failed to send action command");
+    ROS_ERROR_THROTTLE(1.0, "Failed to send action command");
   }
 }
 
