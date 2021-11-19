@@ -80,6 +80,7 @@ class AvtVimbaCamera {
   void start(std::string ip_str, std::string guid_str, bool debug_prints = true);
   void stop();
   double getTimestamp(void);
+  double getTimestampRealTime(VmbUint64_t timestamp_ticks);
   bool resetTimestamp(void);
   double getDeviceTemp(void);
 
@@ -118,6 +119,8 @@ class AvtVimbaCamera {
   VmbInt64_t vimba_camera_max_width_;
   // The max height
   VmbInt64_t vimba_camera_max_height_;
+  // Tick frequency of the on-board clock. Equal to 1 GHz when PTP is in use.
+  VmbInt64_t vimba_timestamp_tick_freq_ = 1;
 
   // Mutex
   boost::mutex config_mutex_;
@@ -156,6 +159,7 @@ class AvtVimbaCamera {
   std::string interfaceToString(VmbInterfaceType interfaceType);
   std::string accessModeToString(VmbAccessModeType modeType);
   int getTriggerModeInt(std::string mode_str);
+  void queryCameraState();
   void printAllCameraFeatures(const CameraPtr& camera);
 
   void updateAcquisitionConfig(Config& config);

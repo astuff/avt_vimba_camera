@@ -56,6 +56,7 @@ MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp) : nh_(nh), nhp
   std::string frame_id;
   nhp_.param("frame_id", frame_id, std::string(""));
   nhp_.param("show_debug_prints", show_debug_prints_, false);
+  nhp_.param("use_measurement_time", use_measurement_time_, false);
 
   // Set camera info manager
   info_man_  = boost::shared_ptr<camera_info_manager::CameraInfoManager>(new camera_info_manager::CameraInfoManager(nhp_, frame_id, camera_info_url_));
@@ -75,7 +76,16 @@ void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr) {
     sensor_msgs::Image img;
     if (api_.frameToImage(vimba_frame_ptr, img)) {
       sensor_msgs::CameraInfo ci = info_man_->getCameraInfo();
-      ci.header.stamp = img.header.stamp = ros_time;
+      if (use_measurement_time_)
+      {
+        VmbUint64_t frame_timestamp;
+        vimba_frame_ptr->GetTimestamp(frame_timestamp);
+        ci.header.stamp = ros::Time(cam_.getTimestampRealTime(frame_timestamp));
+      }
+      else
+      {
+        ci.header.stamp = ros_time;
+      }
       img.header.frame_id = ci.header.frame_id;
       pub_.publish(img, ci);
     } else {
