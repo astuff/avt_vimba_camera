@@ -25,13 +25,13 @@ commands:
           name: Lint
           command: |
             cd ~/catkin_ws
-            catkin build --no-deps --make-args roslint
+            catkin build avt_vimba_camera --no-deps --make-args roslint
       - run:
           name: Run Tests
           command: |
             source /opt/ros/*/setup.bash
             cd ~/catkin_ws
-            catkin run_tests --no-deps
+            catkin run_tests avt_vimba_camera --no-deps
             catkin_test_results
 jobs:
   noetic:
