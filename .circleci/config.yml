@@ -22,11 +22,6 @@ commands:
             cd ~/catkin_ws
             catkin build -j 2 --no-status
       - run:
-          name: Lint
-          command: |
-            cd ~/catkin_ws
-            catkin build avt_vimba_camera --no-deps --make-args roslint
-      - run:
           name: Run Tests
           command: |
             source /opt/ros/*/setup.bash
