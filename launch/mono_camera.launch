@@ -25,6 +25,8 @@
   <arg name="width" default="1920" doc="Width of the image (pixels)"/>
   <arg name="height" default="1440" doc="Height of the image (pixels)"/>
   <arg name="stream_bytes_per_second" default="45000000" doc="Stream bandwidth (B/s)"/>
+  <arg name="ptp_mode" default="Off"/>
+  <arg name="ptp_offset" default="-37"/>
   <arg name="image_proc" default="false"/>
 
   <group if="$(arg image_proc)" ns="$(arg name)">
@@ -57,5 +59,7 @@
     <param name="width" value="$(arg width)"/>
     <param name="height" value="$(arg height)"/>
     <param name="stream_bytes_per_second" value="$(arg stream_bytes_per_second)"/>
+    <param name="ptp_mode" value="$(arg ptp_mode)"/>
+    <param name="ptp_offset" value="$(arg ptp_offset)"/>
   </node>
 </launch>
