@@ -20,18 +20,18 @@ commands:
           command: |
             source /opt/ros/*/setup.bash
             cd ~/catkin_ws
-            catkin build -j 2 --status-rate 0.5
+            catkin build -j 2 --no-status
       - run:
           name: Lint
           command: |
             cd ~/catkin_ws
-            catkin build pacmod3 --no-deps --make-args roslint
+            catkin build --no-deps --make-args roslint
       - run:
           name: Run Tests
           command: |
             source /opt/ros/*/setup.bash
             cd ~/catkin_ws
-            catkin run_tests --no-deps pacmod3
+            catkin run_tests --no-deps
             catkin_test_results
 jobs:
   noetic:
