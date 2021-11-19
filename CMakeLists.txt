@@ -23,7 +23,6 @@ target_architecture(ARCH)
 #add dynamic reconfigure api
 generate_dynamic_reconfigure_options(
   cfg/AvtVimbaCamera.cfg
-  cfg/AvtVimbaCameraStereo.cfg
 )
 
 catkin_package(
@@ -89,15 +88,6 @@ add_executable(mono_camera_node
 
 add_dependencies_and_linkings(mono_camera_node)
 
-add_executable(stereo_camera_node
-  src/nodes/stereo_camera_node.cpp
-  src/stereo_camera.cpp
-  src/avt_vimba_camera.cpp
-  src/frame_observer.cpp
-)
-
-add_dependencies_and_linkings(stereo_camera_node)
-
 add_executable(sync_node
   src/nodes/sync_node.cpp
   src/sync.cpp
@@ -107,9 +97,7 @@ add_dependencies_and_linkings(sync_node)
 
 add_library(avt_camera_nodelets
   src/nodes/mono_camera_nodelet.cpp
-  src/nodes/stereo_camera_nodelet.cpp
   src/mono_camera.cpp
-  src/stereo_camera.cpp
   src/avt_vimba_camera.cpp
   src/frame_observer.cpp)
 add_dependencies_and_linkings(avt_camera_nodelets)
@@ -119,7 +107,7 @@ add_dependencies_and_linkings(avt_camera_nodelets)
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS mono_camera_node stereo_camera_node avt_camera_nodelets
+install(TARGETS mono_camera_node avt_camera_nodelets
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
