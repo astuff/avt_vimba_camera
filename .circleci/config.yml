@@ -20,7 +20,7 @@ commands:
           command: |
             source /opt/ros/*/setup.bash
             cd ~/catkin_ws
-            catkin build
+            catkin build -j 2 --status-rate 0.5
       - run:
           name: Lint
           command: |
