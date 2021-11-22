@@ -38,7 +38,7 @@ namespace avt_vimba_camera {
 Sync::Sync(ros::NodeHandle nh, ros::NodeHandle nhp): nh_(nh), nhp_(nhp), init_(false), it_(nh)
 {
   // Read params
-  nhp_.param("camera", camera_, string("/stereo_down"));
+  nhp_.param("camera", camera_, string("/stereo"));
   nhp_.param("timer_period", timer_period_, 10.0);
   nhp_.param("max_unsync_time", max_unsync_time_, 5.0);
 }

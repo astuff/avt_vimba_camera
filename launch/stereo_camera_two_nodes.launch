@@ -1,4 +1,6 @@
 <launch>
+  <!-- Example launch file for stereo camera application -->
+
   <group ns="stereo">
     <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc"/>
 
@@ -28,7 +30,7 @@
     <node name="right" pkg="avt_vimba_camera" type="mono_camera_node" output="screen">
       <param name="guid" value="50-0503343290"/>
       <param name="ip_address" value=""/>
-      <param name="camera_info_url" value="file://$(find avt_vimba_camera)/calibrations/calibration_50-0503343290.yaml"/>
+      <param name="camera_info_url" value="file://$(find avt_vimba_camera)/calibrations/calibration_50-0503343289.yaml"/>
       <param name="frame_id" value="right_optical"/>
       <param name="trig_timestamp_topic" value=""/>
       <param name="trigger_source" value="Line1"/>

@@ -4,9 +4,4 @@
       MonoCamera Nodelet
     </description>
   </class>
-  <class name="avt_vimba_camera/StereoCameraNodelet" type="avt_vimba_camera::StereoCameraNodelet" base_class_type="nodelet::Nodelet">
-    <description>
-      StereoCamera Nodelet
-    </description>
-  </class>
 </library>
