@@ -4,9 +4,7 @@ namespace trigger
 {
 
 Trigger::Trigger() : vimba_system_(AVT::VmbAPI::VimbaSystem::GetInstance()), pnh_("~")
-{
-  vimba_system_.Startup();
-}
+{}
 
 Trigger::~Trigger()
 {
@@ -15,6 +13,14 @@ Trigger::~Trigger()
 
 void Trigger::Init()
 {
+  VmbErrorType return_value = vimba_system_.Startup();
+
+  if (return_value != VmbErrorSuccess)
+  {
+    ROS_ERROR_STREAM("Failed to start Vimba system, vimba error code: " << return_value);
+    ros::shutdown();
+  }
+
   LoadParams();
   InitializeAddress();
 
