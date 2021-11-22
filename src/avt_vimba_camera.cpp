@@ -176,7 +176,7 @@ void AvtVimbaCamera::start(std::string ip_str, std::string guid_str, bool debug_
   }
   updater_.update();
 
-  queryCameraState();
+  getFeatureValue("GevTimestampTickFrequency", vimba_timestamp_tick_freq_);
 
   // From the SynchronousGrab API example:
   // TODO Set the GeV packet size to the highest possible value
@@ -414,7 +414,7 @@ double AvtVimbaCamera::getTimestamp(void) {
 
 double AvtVimbaCamera::getTimestampRealTime(VmbUint64_t timestamp_ticks)
 {
-  return ((double)timestamp_ticks) / ((double)vimba_timestamp_tick_freq_);
+  return (static_cast<double>(timestamp_ticks)) / (static_cast<double>(vimba_timestamp_tick_freq_));
 }
 
 // Template function to GET a feature value from the camera
@@ -671,11 +671,6 @@ int AvtVimbaCamera::getTriggerModeInt(std::string mode_str) {
     mode = SyncIn4;
   }
   return mode;
-}
-
-void AvtVimbaCamera::queryCameraState()
-{
-  getFeatureValue("GevTimestampTickFrequency", vimba_timestamp_tick_freq_);
 }
 
 void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera) {
