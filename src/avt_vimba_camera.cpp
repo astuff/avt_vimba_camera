@@ -921,20 +921,15 @@ void AvtVimbaCamera::updateIrisConfig(Config& config) {
   bool changed = false;
   if (config.iris_auto_target != config_.iris_auto_target || on_init_) {
     changed = true;
-    setFeatureValue("IrisAutoTarget", static_cast<float>(config.iris_auto_target));
+    setFeatureValue("IrisAutoTarget", static_cast<VmbInt64_t>(config.iris_auto_target));
   }
   if (config.iris_mode != config_.iris_mode || on_init_) {
     changed = true;
     setFeatureValue("IrisMode", config.iris_mode.c_str());
   }
-//  if (config.iris_video_level != config_.iris_video_level || on_init_) {
-//    changed = true;
-//    setFeatureValue("IrisVideoLevel",
-//                    static_cast<VmbInt64_t>(config.iris_video_level));
-//  }
   if (config.iris_video_level_max != config_.iris_video_level_max || on_init_) {
     changed = true;
-    setFeatureValue("IrisVideoLevelMax", static_cast<float>(config.iris_video_level_max));
+    setFeatureValue("IrisVideoLevelMax", static_cast<VmbInt64_t>(config.iris_video_level_max));
   }
   if (config.iris_video_level_min != config_.iris_video_level_min || on_init_) {
     changed = true;
@@ -944,11 +939,10 @@ void AvtVimbaCamera::updateIrisConfig(Config& config) {
   if(changed && show_debug_prints_){
     ROS_INFO_STREAM("New Iris config (" << frame_id_ << ") : "
       << "\n\tIrisAutoTarget    : " << config.iris_auto_target          << " was " << config_.iris_auto_target
-//      << "\n\tIrisMode          : " << config.iris_mode               << " was " << config_.iris_mode
-//      << "\n\tIrisVideoLevel    : " << config.iris_video_level        << " was " << config_.iris_video_level
-//      << "\n\tIrisVideoLevelMax : " << config.iris_video_level_max      << " was " << config_.iris_video_level_max
-//      << "\n\tIrisVideoLevelMin : " << config.iris_video_level_min      << " was " << config_.iris_video_level_min
-);
+      << "\n\tIrisMode          : " << config.iris_mode                 << " was " << config_.iris_mode
+      << "\n\tIrisVideoLevelMax : " << config.iris_video_level_max      << " was " << config_.iris_video_level_max
+      << "\n\tIrisVideoLevelMin : " << config.iris_video_level_min      << " was " << config_.iris_video_level_min
+    );
   }
 }
 
@@ -1033,22 +1027,20 @@ void AvtVimbaCamera::updateGainConfig(Config& config) {
   }
   if (config.gain_auto_min != config_.gain_auto_min || on_init_) {
     changed = true;
-    setFeatureValue("GainAutoMin",
-                    static_cast<VmbInt64_t>(config.gain_auto_min));
+    setFeatureValue("GainAutoMin", static_cast<float>(config.gain_auto_min));
   }
   if (config.gain_auto_outliers != config_.gain_auto_outliers || on_init_) {
     changed = true;
-    setFeatureValue("GainAutoMin",
+    setFeatureValue("GainAutoOutliers",
                     static_cast<VmbInt64_t>(config.gain_auto_outliers));
   }
   if (config.gain_auto_rate != config_.gain_auto_rate || on_init_) {
     changed = true;
-    setFeatureValue("GainAutoOutliers",
-                    static_cast<VmbInt64_t>(config.gain_auto_rate));
+    setFeatureValue("GainAutoRate", static_cast<VmbInt64_t>(config.gain_auto_rate));
   }
   if (config.gain_auto_target != config_.gain_auto_target || on_init_) {
     changed = true;
-    setFeatureValue("GainAutoRate", static_cast<VmbInt64_t>(config.gain_auto_target));
+    setFeatureValue("GainAutoTarget", static_cast<VmbInt64_t>(config.gain_auto_target));
   }
   if(changed && show_debug_prints_){
     ROS_INFO_STREAM("New Gain config (" << frame_id_ << ") : "
