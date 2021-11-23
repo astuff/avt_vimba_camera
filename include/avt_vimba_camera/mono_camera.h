@@ -65,15 +65,12 @@ class MonoCamera {
   std::string ip_;
   std::string guid_;
   std::string camera_info_url_;
+  std::string frame_id_;
   bool show_debug_prints_;
 
   image_transport::ImageTransport it_;
-  // ROS Camera publisher
   image_transport::CameraPublisher pub_;
 
-
-
-  // sensor_msgs::CameraInfo left_info_;
   boost::shared_ptr<camera_info_manager::CameraInfoManager> info_man_;
 
   // Dynamic reconfigure

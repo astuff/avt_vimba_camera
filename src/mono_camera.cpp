@@ -53,12 +53,11 @@ MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp) : nh_(nh), nhp
   nhp_.param("ip", ip_, std::string(""));
   nhp_.param("guid", guid_, std::string(""));
   nhp_.param("camera_info_url", camera_info_url_, std::string(""));
-  std::string frame_id;
-  nhp_.param("frame_id", frame_id, std::string(""));
+  nhp_.param("frame_id", frame_id_, std::string(""));
   nhp_.param("show_debug_prints", show_debug_prints_, false);
 
   // Set camera info manager
-  info_man_  = boost::shared_ptr<camera_info_manager::CameraInfoManager>(new camera_info_manager::CameraInfoManager(nhp_, frame_id, camera_info_url_));
+  info_man_  = boost::shared_ptr<camera_info_manager::CameraInfoManager>(new camera_info_manager::CameraInfoManager(nhp_, frame_id_, camera_info_url_));
 
   // Start dynamic_reconfigure & run configure()
   reconfigure_server_.setCallback(boost::bind(&avt_vimba_camera::MonoCamera::configure, this, _1, _2));
@@ -96,18 +95,14 @@ void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr) {
 **/
 void MonoCamera::configure(Config& newconfig, uint32_t level) {
   try {
-    // resolve frame ID using tf_prefix parameter
-    if (newconfig.frame_id == "") {
-      newconfig.frame_id = "camera";
-    }
     // The camera already stops & starts acquisition
     // so there's no problem on changing any feature.
     if (!cam_.isOpened()) {
-      cam_.start(ip_, guid_, show_debug_prints_);
+      cam_.start(ip_, guid_, frame_id_, show_debug_prints_);
     }
 
     Config config = newconfig;
-    cam_.updateConfig(newconfig);
+    cam_.updateConfig(config);
     updateCameraInfo(config);
   } catch (const std::exception& e) {
     ROS_ERROR_STREAM("Error reconfiguring mono_camera node : " << e.what());
@@ -115,48 +110,37 @@ void MonoCamera::configure(Config& newconfig, uint32_t level) {
 }
 
 void MonoCamera::updateCameraInfo(const avt_vimba_camera::AvtVimbaCameraConfig& config) {
+  // See REP-104 for details regarding CameraInfo parameters
 
-  // Get camera_info from the manager
   sensor_msgs::CameraInfo ci = info_man_->getCameraInfo();
-
-  // Set the frame id
-  ci.header.frame_id = config.frame_id;
 
   // Set the operational parameters in CameraInfo (binning, ROI)
   int binning_or_decimation_x = std::max(config.binning_x, config.decimation_x);
   int binning_or_decimation_y = std::max(config.binning_y, config.decimation_y);
 
   // Set the operational parameters in CameraInfo (binning, ROI)
-  ci.height    = config.height;
-  ci.width     = config.width;
+  int sensor_width = cam_.getSensorWidth();
+  int sensor_height = cam_.getSensorHeight();
+
+  if (sensor_width == -1 || sensor_height == -1)
+  {
+    ROS_ERROR("Could not determine sensor pixel dimensions, camera_info will be wrong");
+  }
+
+  ci.width     = sensor_width;
+  ci.height    = sensor_height;
   ci.binning_x = binning_or_decimation_x;
   ci.binning_y = binning_or_decimation_y;
 
-  // ROI in CameraInfo is in unbinned coordinates, need to scale up
-  ci.roi.x_offset = config.roi_offset_x;
-  ci.roi.y_offset = config.roi_offset_y;
-  ci.roi.height   = config.roi_height;
-  ci.roi.width    = config.roi_width;
+  // ROI is in unbinned coordinates, need to scale up
+  ci.roi.width    = config.width * binning_or_decimation_x;
+  ci.roi.height   = config.height * binning_or_decimation_y;
+  ci.roi.x_offset = config.offset_x * binning_or_decimation_x;
+  ci.roi.y_offset = config.offset_y * binning_or_decimation_y;
 
-  // set the new URL and load CameraInfo (if any) from it
-  std::string camera_info_url;
-  nhp_.getParam("camera_info_url", camera_info_url);
-  if (camera_info_url != camera_info_url_) {
-    info_man_->setCameraName(config.frame_id);
-    if (info_man_->validateURL(camera_info_url)) {
-      info_man_->loadCameraInfo(camera_info_url);
-      ci = info_man_->getCameraInfo();
-    } else {
-      ROS_WARN_STREAM("Camera info URL not valid: " << camera_info_url);
-    }
-  }
-
-  bool roiMatchesCalibration = (ci.height == config.roi_height
-                              && ci.width == config.roi_width);
-  bool resolutionMatchesCalibration = (ci.width == config.width
-                                   && ci.height == config.height);
-  // check
-  ci.roi.do_rectify = roiMatchesCalibration || resolutionMatchesCalibration;
+  bool roi_is_full_image = (ci.roi.width == ci.width &&
+                            ci.roi.height == ci.height);
+  ci.roi.do_rectify = !roi_is_full_image;
 
   // push the changes to manager
   info_man_->setCameraInfo(ci);
