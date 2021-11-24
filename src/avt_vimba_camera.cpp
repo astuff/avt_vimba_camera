@@ -51,7 +51,9 @@ static const char* TriggerMode[] = {
   "Line1",
   "Line2",
   "Line3",
-  "Line4" };
+  "Line4",
+  "Action0",
+  "Action1"};
 static const char* AcquisitionMode[] = {
   "Continuous",
   "SingleFrame",
@@ -191,7 +193,9 @@ void AvtVimbaCamera::start(std::string ip_str, std::string guid_str, std::string
 
   if (trigger_source_int == Freerun   ||
       trigger_source_int == FixedRate ||
-      trigger_source_int == SyncIn1) {
+      trigger_source_int == SyncIn1   ||
+      trigger_source_int == Action0   ||
+      trigger_source_int == Action1) {
     // Create a frame observer for this camera
     SP_SET(frame_obs_ptr_, new FrameObserver(vimba_camera_ptr_,
       boost::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, _1)));
@@ -716,6 +720,10 @@ int AvtVimbaCamera::getTriggerModeInt(std::string mode_str) {
     mode = SyncIn3;
   } else if (mode_str == TriggerMode[SyncIn4]) {
     mode = SyncIn4;
+  } else if (mode_str == TriggerMode[Action0]) {
+    mode = Action0;
+  } else if (mode_str == TriggerMode[Action1]) {
+    mode = Action1;
   }
   return mode;
 }
@@ -898,6 +906,18 @@ void AvtVimbaCamera::updateAcquisitionConfig(Config& config) {
   if (config.trigger_delay != config_.trigger_delay || on_init_) {
     changed = true;
     setFeatureValue("TriggerDelayAbs", config.trigger_delay);
+  }
+  if (config.action_device_key != config_.action_device_key || on_init_) {
+    changed = true;
+    setFeatureValue("ActionDeviceKey", config.action_device_key);
+  }
+  if (config.action_group_key != config_.action_group_key || on_init_) {
+    changed = true;
+    setFeatureValue("ActionGroupKey", config.action_group_key);
+  }
+  if (config.action_group_mask != config_.action_group_mask || on_init_) {
+    changed = true;
+    setFeatureValue("ActionGroupMask", config.action_group_mask);
   }
   if(changed && show_debug_prints_){
     ROS_INFO_STREAM("New Acquisition and Trigger config (" << frame_id_ << ") : "

@@ -1,6 +1,6 @@
 image_width: 1920
 image_height: 1440
-camera_name: left_optical
+camera_name: camera
 camera_matrix:
   rows: 3
   cols: 3
