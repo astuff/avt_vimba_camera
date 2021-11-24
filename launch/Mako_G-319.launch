@@ -1,6 +1,6 @@
 <launch>
   <arg name="name" default="camera" doc="The name of the camera"/>
-  <arg name="frame_id" default="camera" doc="The frame id of the camera"/>
+  <arg name="frame_id" default="$(arg name)" doc="The frame id of the camera"/>
   <arg name="ip" default="" doc="The IP for the camera to connect to"/>
   <arg name="guid" default="" doc="The GUID for the camera to connect to"/>
   <arg name="camera_info_url" default="file://$(find avt_vimba_camera)/calibrations/calibration_50-0503343289.yaml"/>
@@ -18,6 +18,6 @@
     <arg name="pixel_format" value="BayerRG8"/>
     <arg name="width" value="2064"/>
     <arg name="height" value="1544"/>
-    <arg name="stream_bytes_per_second" value="119824282"/>
+    <arg name="stream_bytes_per_second" value="124000000"/>
   </include>
 </launch>

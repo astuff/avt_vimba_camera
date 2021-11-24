@@ -2,11 +2,11 @@
   <!-- Driver parameters, these parameters affect the way the ROS driver works -->
   <arg name="name" default="camera" doc="The name of the camera"/>
   <arg name="ip" default="" doc="The IP for the camera to connect to"/>
-  <arg name="guid" default="50-0503343290" doc="The GUID for the camera to connect to"/>
+  <arg name="guid" default="" doc="The GUID for the camera to connect to"/>
   <arg name="frame_id" default="$(arg name)" doc="The frame id of the camera"/>
   <arg name="camera_info_url" default="file://$(find avt_vimba_camera)/calibrations/calibration_50-0503343289.yaml"/>
-  <arg name="show_debug_prints" default="true"/>
-  <arg name="image_proc" default="false"/>
+  <arg name="show_debug_prints" default="true" doc="Show debug output on console"/>
+  <arg name="image_proc" default="false" doc="Launch image_proc with driver"/>
 
   <!-- Camera parameters, these parameters are used to configure the AVT camera upon startup -->
   <!-- See the cfg/AvtVimbaCamera.cfg file for documentation -->
