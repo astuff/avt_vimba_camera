@@ -150,7 +150,7 @@ class AvtVimbaCamera {
   template<typename T>
   bool setGetFeatureValue(const std::string& feature_str, const T& val_in, T& val_out);
   template<typename Vimba_Type, typename Std_Type>
-  bool configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out);
+  void configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out);
   template<typename T>
   bool getFeatureValue(const std::string& feature_str, T& val);
   bool getFeatureValue(const std::string& feature_str, std::string& val);

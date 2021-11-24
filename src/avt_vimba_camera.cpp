@@ -497,35 +497,30 @@ bool AvtVimbaCamera::setFeatureValue(const std::string& feature_str,
 // Function for setting and then getting feature values, since the camera isn't guaranteed to accept what is sent.
 template<typename T>
 bool AvtVimbaCamera::setGetFeatureValue(const std::string& feature_str, const T& val_in, T& val_out) {
-  if (setFeatureValue(feature_str, val_in))
-  {
-    return (getFeatureValue(feature_str, val_out));
-  }
+  bool return_value = true;
+  return_value &= setFeatureValue(feature_str, val_in);
+  return_value &= getFeatureValue(feature_str, val_out);
 
-  return false;
+  return return_value;
 }
 
 // Tries to configure a camera feature, returns true if the value was used,
 // returns false if a different value was used or something failed.
 // Also updates the config value passed in if a different config is in use by the camera.
 template<typename Vimba_Type, typename Std_Type>
-bool AvtVimbaCamera::configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out) {
+void AvtVimbaCamera::configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out) {
   Vimba_Type actual_value;
-  if (setGetFeatureValue(feature_str, val_in, actual_value)) {
-    if (val_in == actual_value)
-    {
-      ROS_INFO_STREAM("Feature " << feature_str << " set to " << actual_value);
-      return true;
-    }
-    else
-    {
-      ROS_WARN_STREAM("Tried to set feature " << feature_str << " to " << val_in << " but the camera used " << val_out << " instead");
-      val_out = static_cast<Std_Type>(actual_value);
-      return false;
-    }
-  }
+  setGetFeatureValue(feature_str, val_in, actual_value);
 
-  return false;
+  if (val_in == actual_value)
+  {
+    ROS_INFO_STREAM(feature_str << " set to " << actual_value);
+  }
+  else
+  {
+    ROS_WARN_STREAM("Tried to set " << feature_str << " to " << val_in << " but the camera used " << actual_value << " instead");
+    val_out = static_cast<Std_Type>(actual_value);
+  }
 }
 
 // Template function to GET a feature value from the camera
