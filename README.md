@@ -82,9 +82,10 @@ See the launch file (launch/mono_camera.launch) for documentation regarding the 
 
 ### sync_node
 
-The sync_node is a standalone node for synchronizing two ROS image topics using [message filter](http://wiki.ros.org/message_filters);
+The sync_node is a standalone node for synchronizing two ROS image topics using [message filter](http://wiki.ros.org/message_filters).
+This could be useful if you have a stereo camera setup, see the `stereo_camera.launch` file for an example of using two AVT cameras in a stereo setup.
 If you are using multiple cameras, it is highly recommended to sync their clocks using PTP or hardware sync. 
-See AVT's documentation for more details.
+See the "Clock Synchronization" section for more details.
 
 ### trigger_node
 
@@ -96,9 +97,10 @@ Note that cameras must be configured to receive the action commands in addition 
 ## Clock Synchronization
 
 If you wish to use the exact time the image was measured in the header of the ROS messages, it is suggested to use PTP synchronization.
-PTP will ensure the clock on the camera is synchronized with the computer, so that measurements times are all based off of the same clock.
+PTP will ensure the clock on the camera is synchronized with the computer, so that measurement times are all based off of the same clock.
 Setting the `use_measurement_time` parameter will set the ROS header timestamp to the frame timestamp, but it is up to you to make sure the camera clock is synced with the computer.
 [linuxptp](http://linuxptp.sourceforge.net) is a great tool for PTP synchronization and is suggested for ensuring the camera is in sync with the computer.
+See the links below for more details on PTP sync.
 
 ## Useful Technical References and Application Notes
 
