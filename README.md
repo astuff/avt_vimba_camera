@@ -66,6 +66,11 @@ If you are having difficulty getting the camera to do what you want using the RO
 The Vimba Viewer GUI will help you determine what settings are available to your camera model and help you tune them easier.
 Once you have settings that you are happy with, save them into your own rosparam file or launch file, and the driver will use those settings every time it launches.
 
+Note that this driver makes use of both ROS parameters and dynamic reconfigure.
+When the driver first starts, the dyanmic reconfigure server will initialize with all current ROS param values, then trigger a callback to configure the camera.
+This means ROS params will take precedence and should be the preferred way to save camera configs meant to be reused.
+After the driver initializes, changes to the parameters can be made using dynamic reconfigure RQT tool (rqt_reconfigure).
+
 ## ROS Nodes
 
 ### mono_camera_node
