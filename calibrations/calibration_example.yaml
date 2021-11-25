@@ -1,3 +1,5 @@
+# NOTE: This is just an example calibration file, always use your own calibration when doing any image rectification or un-distortion.
+
 image_width: 1920
 image_height: 1440
 camera_name: camera
