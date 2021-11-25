@@ -78,8 +78,8 @@ enum CameraState {
 class AvtVimbaCamera {
  public:
   AvtVimbaCamera();
-  AvtVimbaCamera(std::string name);
-  void start(std::string ip_str, std::string guid_str, std::string frame_id, bool debug_prints = true);
+  AvtVimbaCamera(const std::string& name);
+  void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id, bool debug_prints = true);
   void stop();
   double getTimestamp(void);
   double getTimestampRealTime(VmbUint64_t timestamp_ticks);
