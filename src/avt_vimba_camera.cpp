@@ -310,11 +310,11 @@ CameraPtr AvtVimbaCamera::openCamera(std::string id_str, bool print_all_features
   VmbErrorType err = vimba_system.GetCameraByID(id_str.c_str(), camera);
   while (err != VmbErrorSuccess) {
     if (keepRunning) {
-      ROS_WARN_STREAM("Could not get camera. Retrying every two seconds...");
-      err = vimba_system.GetCameraByID(id_str.c_str(), camera);
+      ROS_WARN_STREAM("Could not find camera using " << id_str << ". Retrying every two seconds ...");
       ros::Duration(2.0).sleep();
+      err = vimba_system.GetCameraByID(id_str.c_str(), camera);
     } else {
-      ROS_ERROR_STREAM("Could not get camera " << id_str
+      ROS_ERROR_STREAM("Could not find camera using " << id_str
         << "\n Error: " << api_.errorCodeToMessage(err));
       camera_state_ = CAMERA_NOT_FOUND;
       return camera;
@@ -325,7 +325,7 @@ CameraPtr AvtVimbaCamera::openCamera(std::string id_str, bool print_all_features
   err = camera->Open(VmbAccessModeFull);
   while (err != VmbErrorSuccess && keepRunning) {
     if (keepRunning) {
-      ROS_WARN_STREAM("Could not open camera. Retrying every two seconds...");
+      ROS_WARN_STREAM("Could not open camera. Retrying every two seconds ...");
       err = camera->Open(VmbAccessModeFull);
       ros::Duration(2.0).sleep();
     } else {
@@ -692,7 +692,6 @@ void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera) {
   // The static details of a feature
   std::string strName;           // The name of the feature
   std::string strDisplayName;    // The display name of the feature
-  std::string strTooltip;        // A short description of the feature
   std::string strDescription;    // A long description of the feature
   std::string strCategory;       // A category to group features
   std::string strSFNCNamespace;  // The Std Feature Naming Convention namespace
@@ -726,13 +725,6 @@ void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera) {
         strDisplayName.assign(strError.str());
       }
 
-      err = (*iter)->GetToolTip(strTooltip);
-      if (err != VmbErrorSuccess) {
-        strError << "[Could not get feature Tooltip. Error code: "
-                 << err << "]";
-        strTooltip.assign(strError.str());
-      }
-
       err = (*iter)->GetDescription(strDescription);
       if (err != VmbErrorSuccess) {
         strError << "[Could not get feature Description. Error code: "
@@ -762,7 +754,6 @@ void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera) {
 
       std::cout << "/// Feature Name: " << strName << std::endl;
       std::cout << "/// Display Name: " << strDisplayName << std::endl;
-      std::cout << "/// Tooltip: " << strTooltip << std::endl;
       std::cout << "/// Description: " << strDescription << std::endl;
       std::cout << "/// SNFC Namespace: " << strSFNCNamespace << std::endl;
       std::cout << "/// Unit: " << strUnit << std::endl;
@@ -778,32 +769,32 @@ void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera) {
           bool bValue;
           err = (*iter)->GetValue(bValue);
           if (err == VmbErrorSuccess) {
-            std::cout << bValue << " bool" << std::endl;
+            std::cout << bValue << " (bool)" << std::endl;
           }
           break;
           case VmbFeatureDataEnum:
           err = (*iter)->GetValue(strValue);
           if (err == VmbErrorSuccess) {
-            std::cout << strValue << " str Enum" << std::endl;
+            std::cout << strValue << " (string enum)" << std::endl;
           }
           break;
           case VmbFeatureDataFloat:
           double fValue;
           err = (*iter)->GetValue(fValue);
           {
-            std::cout << fValue << " float" << std::endl;
+            std::cout << fValue << " (float)" << std::endl;
           }
           break;
           case VmbFeatureDataInt:
           err = (*iter)->GetValue(nValue);
           {
-            std::cout << nValue << " int" << std::endl;
+            std::cout << nValue << " (int)" << std::endl;
           }
           break;
           case VmbFeatureDataString:
           err = (*iter)->GetValue(strValue);
           {
-            std::cout << strValue << " str" << std::endl;
+            std::cout << strValue << " (string)" << std::endl;
           }
           break;
           case VmbFeatureDataCommand:
