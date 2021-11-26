@@ -33,47 +33,44 @@
 #include <avt_vimba_camera/frame_observer.h>
 #include <iostream>
 
-FrameObserver::FrameObserver(CameraPtr cam_ptr, Callback callback) : IFrameObserver( cam_ptr ), callback_(callback), cam_ptr_(cam_ptr)
+FrameObserver::FrameObserver(CameraPtr cam_ptr, Callback callback)
+  : IFrameObserver(cam_ptr), callback_(callback), cam_ptr_(cam_ptr)
 {
   // Nothing
 }
 
-void FrameObserver::FrameReceived( const FramePtr vimba_frame_ptr )
+void FrameObserver::FrameReceived(const FramePtr vimba_frame_ptr)
 {
   VmbFrameStatusType eReceiveStatus;
   VmbErrorType err = vimba_frame_ptr->GetReceiveStatus(eReceiveStatus);
 
-  if (err == VmbErrorSuccess) {
+  if (err == VmbErrorSuccess)
+  {
     switch (eReceiveStatus)
     {
-      case VmbFrameStatusComplete:
-      {
+      case VmbFrameStatusComplete: {
         // Call the callback
         callback_(vimba_frame_ptr);
         break;
       }
-      case VmbFrameStatusIncomplete:
-      {
+      case VmbFrameStatusIncomplete: {
         std::cout << "ERR: FrameObserver VmbFrameStatusIncomplete" << std::endl;
         break;
       }
-      case VmbFrameStatusTooSmall:
-      {
+      case VmbFrameStatusTooSmall: {
         std::cout << "ERR: FrameObserver VmbFrameStatusTooSmall" << std::endl;
         break;
       }
-      case VmbFrameStatusInvalid:
-      {
+      case VmbFrameStatusInvalid: {
         std::cout << "ERR: FrameObserver VmbFrameStatusInvalid" << std::endl;
         break;
       }
-      default:
-      {
+      default: {
         std::cout << "ERR: FrameObserver no known status" << std::endl;
         break;
       }
     }
   }
 
-  cam_ptr_->QueueFrame( vimba_frame_ptr );
+  cam_ptr_->QueueFrame(vimba_frame_ptr);
 }

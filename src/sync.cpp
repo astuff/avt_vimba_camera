@@ -33,9 +33,9 @@
 #include <avt_vimba_camera/sync.h>
 #include <stdlib.h>
 
-namespace avt_vimba_camera {
-
-Sync::Sync(ros::NodeHandle nh, ros::NodeHandle nhp): nh_(nh), nhp_(nhp), init_(false), it_(nh)
+namespace avt_vimba_camera
+{
+Sync::Sync(ros::NodeHandle nh, ros::NodeHandle nhp) : nh_(nh), nhp_(nhp), init_(false), it_(nh)
 {
   // Read params
   nhp_.param("camera", camera_, string("/stereo"));
@@ -49,13 +49,13 @@ void Sync::run()
   image_transport::SubscriberFilter left_sub, right_sub;
   message_filters::Subscriber<sensor_msgs::CameraInfo> left_info_sub, right_info_sub;
 
-  left_sub      .subscribe(it_, camera_+"/left/image_raw", 5);
-  right_sub     .subscribe(it_, camera_+"/right/image_raw", 5);
-  left_info_sub .subscribe(nh_, camera_+"/left/camera_info",  5);
-  right_info_sub.subscribe(nh_, camera_+"/right/camera_info", 5);
+  left_sub.subscribe(it_, camera_ + "/left/image_raw", 5);
+  right_sub.subscribe(it_, camera_ + "/right/image_raw", 5);
+  left_info_sub.subscribe(nh_, camera_ + "/left/camera_info", 5);
+  right_info_sub.subscribe(nh_, camera_ + "/right/camera_info", 5);
 
   boost::shared_ptr<SyncType> sync_var;
-  sync_var.reset(new SyncType(SyncPolicy(5), left_sub, right_sub, left_info_sub, right_info_sub) );
+  sync_var.reset(new SyncType(SyncPolicy(5), left_sub, right_sub, left_info_sub, right_info_sub));
   sync_var->registerCallback(bind(&Sync::msgsCallback, this, _1, _2, _3, _4));
 
   // Sync timer
@@ -67,8 +67,7 @@ void Sync::run()
   ros::spin();
 }
 
-void Sync::msgsCallback(const sensor_msgs::ImageConstPtr& l_img_msg,
-                        const sensor_msgs::ImageConstPtr& r_img_msg,
+void Sync::msgsCallback(const sensor_msgs::ImageConstPtr& l_img_msg, const sensor_msgs::ImageConstPtr& r_img_msg,
                         const sensor_msgs::CameraInfoConstPtr& l_info_msg,
                         const sensor_msgs::CameraInfoConstPtr& r_info_msg)
 {
@@ -81,7 +80,8 @@ void Sync::msgsCallback(const sensor_msgs::ImageConstPtr& l_img_msg,
 
 void Sync::syncCallback(const ros::TimerEvent&)
 {
-  if (!init_) return;
+  if (!init_)
+    return;
 
   double now = ros::Time::now().toSec();
 
@@ -93,11 +93,9 @@ void Sync::syncCallback(const ros::TimerEvent&)
 
     // Publish info
     std_msgs::String msg;
-    msg.data = "Reseting camera driver at ROSTIME: " +
-               boost::lexical_cast<string>(now) + "s.";
+    msg.data = "Reseting camera driver at ROSTIME: " + boost::lexical_cast<string>(now) + "s.";
     pub_info_.publish(msg);
   }
 }
 
-
-};
+};  // namespace avt_vimba_camera

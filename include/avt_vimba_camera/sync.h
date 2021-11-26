@@ -44,46 +44,43 @@
 
 using namespace std;
 
-namespace avt_vimba_camera {
-class Sync {
+namespace avt_vimba_camera
+{
+class Sync
+{
+public:
+  Sync(ros::NodeHandle nh, ros::NodeHandle nhp);
+  void run();
 
-  public:
-    Sync(ros::NodeHandle nh, ros::NodeHandle nhp);
-    void run();
+protected:
+  void msgsCallback(const sensor_msgs::ImageConstPtr& l_img_msg, const sensor_msgs::ImageConstPtr& r_img_msg,
+                    const sensor_msgs::CameraInfoConstPtr& l_info_msg,
+                    const sensor_msgs::CameraInfoConstPtr& r_info_msg);
 
-  protected:
+  void syncCallback(const ros::TimerEvent&);
 
-    void msgsCallback(const sensor_msgs::ImageConstPtr& l_img_msg,
-                      const sensor_msgs::ImageConstPtr& r_img_msg,
-                      const sensor_msgs::CameraInfoConstPtr& l_info_msg,
-                      const sensor_msgs::CameraInfoConstPtr& r_info_msg);
+private:
+  // Node handles
+  ros::NodeHandle nh_;
+  ros::NodeHandle nhp_;
 
-    void syncCallback(const ros::TimerEvent&);
+  bool init_;               //!> True when node is initialized.
+  double last_ros_sync_;    //!> Last ros time sync
+  double timer_period_;     //!> Timer period
+  double max_unsync_time_;  //!> Maximum time without sync
+  ros::Timer sync_timer_;   //!> Timer to check the image sync
+  string camera_;           //!> Camera name
 
-  private:
+  // Topic sync
+  typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image,
+                                                          sensor_msgs::CameraInfo, sensor_msgs::CameraInfo>
+      SyncPolicy;
+  typedef message_filters::Synchronizer<SyncPolicy> SyncType;
 
-    // Node handles
-    ros::NodeHandle nh_;
-    ros::NodeHandle nhp_;
+  // Image transport
+  image_transport::ImageTransport it_;
 
-    bool init_; //!> True when node is initialized.
-    double last_ros_sync_; //!> Last ros time sync
-    double timer_period_; //!> Timer period
-    double max_unsync_time_; //!> Maximum time without sync
-    ros::Timer sync_timer_; //!> Timer to check the image sync
-    string camera_; //!> Camera name
-
-    // Topic sync
-    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image,
-                                                            sensor_msgs::Image,
-                                                            sensor_msgs::CameraInfo,
-                                                            sensor_msgs::CameraInfo> SyncPolicy;
-    typedef message_filters::Synchronizer<SyncPolicy> SyncType;
-
-    // Image transport
-    image_transport::ImageTransport it_;
-
-    ros::Publisher pub_info_; //!> Publish reset info
+  ros::Publisher pub_info_;  //!> Publish reset info
 };
-}
+}  // namespace avt_vimba_camera
 #endif

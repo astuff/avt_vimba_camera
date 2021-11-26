@@ -3,16 +3,16 @@
 
 namespace avt_vimba_camera
 {
-    void MonoCameraNodelet::onInit()
-    {
-        NODELET_DEBUG("Initializing nodelet...");
-				camera_ = new MonoCamera(getMTNodeHandle(), getMTPrivateNodeHandle());
-    }
-
-    MonoCameraNodelet::~MonoCameraNodelet()
-    {
-      	delete camera_;
-    }
+void MonoCameraNodelet::onInit()
+{
+  NODELET_DEBUG("Initializing nodelet...");
+  camera_ = new MonoCamera(getMTNodeHandle(), getMTPrivateNodeHandle());
 }
+
+MonoCameraNodelet::~MonoCameraNodelet()
+{
+  delete camera_;
+}
+}  // namespace avt_vimba_camera
 
 PLUGINLIB_EXPORT_CLASS(avt_vimba_camera::MonoCameraNodelet, nodelet::Nodelet)

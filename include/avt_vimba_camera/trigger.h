@@ -11,7 +11,6 @@
 
 namespace trigger
 {
-
 class Trigger
 {
 public:

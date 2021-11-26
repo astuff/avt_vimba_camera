@@ -9,7 +9,7 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   ros::NodeHandle nhp("~");
 
-  avt_vimba_camera::Sync sync(nh,nhp);
+  avt_vimba_camera::Sync sync(nh, nhp);
 
   boost::thread syncThread(&avt_vimba_camera::Sync::run, &sync);
 

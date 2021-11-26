@@ -47,14 +47,15 @@
 
 #include <string>
 
-using AVT::VmbAPI::VimbaSystem;
 using AVT::VmbAPI::CameraPtr;
 using AVT::VmbAPI::FramePtr;
 using AVT::VmbAPI::IFrameObserverPtr;
+using AVT::VmbAPI::VimbaSystem;
 
-namespace avt_vimba_camera {
-
-enum FrameStartTriggerMode {
+namespace avt_vimba_camera
+{
+enum FrameStartTriggerMode
+{
   Freerun,
   FixedRate,
   Software,
@@ -66,7 +67,8 @@ enum FrameStartTriggerMode {
   Action1
 };
 
-enum CameraState {
+enum CameraState
+{
   OPENING,
   IDLE,
   CAMERA_NOT_FOUND,
@@ -75,37 +77,48 @@ enum CameraState {
   OK
 };
 
-class AvtVimbaCamera {
- public:
+class AvtVimbaCamera
+{
+public:
+  typedef avt_vimba_camera::AvtVimbaCameraConfig Config;
+
   AvtVimbaCamera();
   AvtVimbaCamera(const std::string& name);
-  void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id, bool print_all_features = false);
+
+  void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id,
+             bool print_all_features = false);
   void stop();
-  double getTimestamp(void);
+
+  void updateConfig(Config& config);
+  void startImaging(void);
+  void stopImaging(void);
+
+  // Utility functions
   double getTimestampRealTime(VmbUint64_t timestamp_ticks);
-  bool resetTimestamp(void);
+  bool isOpened(void) { return opened_; }
+
+  // Getters
+
+  double getTimestamp(void);
+  // bool resetTimestamp(void);
   double getDeviceTemp(void);
 
-  CameraPtr getCameraPtr(void) {
-    return vimba_camera_ptr_;
-  }
+  // CameraPtr getCameraPtr(void)
+  // {
+  //   return vimba_camera_ptr_;
+  // }
 
   int getSensorWidth();
   int getSensorHeight();
 
-  // Pass callback function pointer
-  typedef boost::function<void (const FramePtr)> frameCallbackFunc;
-  void setCallback(frameCallbackFunc callback = &avt_vimba_camera::AvtVimbaCamera::defaultFrameCallback) {
+  // Setters
+  typedef boost::function<void(const FramePtr)> frameCallbackFunc;
+  void setCallback(frameCallbackFunc callback = &avt_vimba_camera::AvtVimbaCamera::defaultFrameCallback)
+  {
     userFrameCallback = callback;
   }
 
-  typedef avt_vimba_camera::AvtVimbaCameraConfig Config;
-  void updateConfig(Config& config);
-  void startImaging(void);
-  void stopImaging(void);
-  bool isOpened(void) { return opened_; }
-
- private:
+private:
   Config config_;
 
   AvtVimbaApi api_;
@@ -145,16 +158,17 @@ class AvtVimbaCamera {
 
   frameCallbackFunc userFrameCallback;
   void frameCallback(const FramePtr vimba_frame_ptr);
-  void defaultFrameCallback(const FramePtr vimba_frame_ptr) {
+  void defaultFrameCallback(const FramePtr vimba_frame_ptr)
+  {
     std::cout << "[AvtVimbaCamera] No frame callback provided." << std::endl;
   }
 
-  template<typename T>
+  template <typename T>
   VmbErrorType setFeatureValue(const std::string& feature_str, const T& val);
-  template<typename Vimba_Type, typename Std_Type>
+  template <typename Vimba_Type, typename Std_Type>
   void configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out);
   void configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out);
-  template<typename T>
+  template <typename T>
   bool getFeatureValue(const std::string& feature_str, T& val);
   bool getFeatureValue(const std::string& feature_str, std::string& val);
   bool runCommand(const std::string& command_str);
@@ -173,8 +187,7 @@ class AvtVimbaCamera {
   void updateGPIOConfig(Config& config);
   void updateIrisConfig(Config& config);
 
-  void getCurrentState(diagnostic_updater::DiagnosticStatusWrapper &stat);
-
+  void getCurrentState(diagnostic_updater::DiagnosticStatusWrapper& stat);
 };
-}
+}  // namespace avt_vimba_camera
 #endif

@@ -2,9 +2,9 @@
 
 namespace trigger
 {
-
 Trigger::Trigger() : vimba_system_(AVT::VmbAPI::VimbaSystem::GetInstance()), pnh_("~")
-{}
+{
+}
 
 Trigger::~Trigger()
 {
@@ -49,7 +49,7 @@ void Trigger::LoadParams()
   pnh_.param<int>("action_group_key", action_group_key_, 1);
   pnh_.param<int>("action_group_mask", action_group_mask_, 1);
 
-  if(inet_aton(destination_ip.c_str(), &destination_ip_) == 0)
+  if (inet_aton(destination_ip.c_str(), &destination_ip_) == 0)
   {
     ROS_ERROR("Unable to parse desination_ip: %s", destination_ip.c_str());
     ros::shutdown();
@@ -70,8 +70,7 @@ void Trigger::InitializeAddress()
 
 bool Trigger::PrepareActionCommand()
 {
-  return (SetIntFeatureValue("ActionDeviceKey", 1) &&
-          SetIntFeatureValue("ActionGroupKey", 1) &&
+  return (SetIntFeatureValue("ActionDeviceKey", 1) && SetIntFeatureValue("ActionGroupKey", 1) &&
           SetIntFeatureValue("ActionGroupMask", 1));
 }
 
@@ -117,9 +116,9 @@ void Trigger::SendActionCommand()
   VmbErrorType return_value = VmbErrorSuccess;
 
   AVT::VmbAPI::FeaturePtr lFeature;
-  return_value = vimba_system_.GetFeatureByName("ActionCommand", lFeature );
+  return_value = vimba_system_.GetFeatureByName("ActionCommand", lFeature);
 
-  if(return_value == VmbErrorSuccess)
+  if (return_value == VmbErrorSuccess)
   {
     return_value = lFeature->RunCommand();
   }

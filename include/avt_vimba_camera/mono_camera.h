@@ -46,13 +46,15 @@
 
 #include <string>
 
-namespace avt_vimba_camera {
-class MonoCamera {
- public:
+namespace avt_vimba_camera
+{
+class MonoCamera
+{
+public:
   MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp);
   ~MonoCamera(void);
 
- private:
+private:
   AvtVimbaApi api_;
   AvtVimbaCamera cam_;
 
@@ -87,5 +89,5 @@ class MonoCamera {
   void configure(Config& newconfig, uint32_t level);
   void updateCameraInfo(const Config& config);
 };
-}
+}  // namespace avt_vimba_camera
 #endif

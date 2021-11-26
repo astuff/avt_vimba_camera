@@ -41,23 +41,22 @@ using namespace AVT::VmbAPI;
 
 class FrameObserver : virtual public IFrameObserver
 {
-  public:
+public:
+  typedef boost::function<void(const FramePtr vimba_frame_ptr)> Callback;
 
-    typedef boost::function<void (const FramePtr vimba_frame_ptr)> Callback;
+  // We pass the camera that will deliver the frames to the constructor
+  FrameObserver(CameraPtr cam_ptr, Callback callback);
 
-    // We pass the camera that will deliver the frames to the constructor
-    FrameObserver( CameraPtr cam_ptr, Callback callback);
+  // Destructor
+  ~FrameObserver(){};
 
-    // Destructor
-    ~FrameObserver(){};
+  // This is our callback routine that will be executed on every received frame
+  virtual void FrameReceived(const FramePtr vimba_frame_ptr);
 
-    // This is our callback routine that will be executed on every received frame
-    virtual void FrameReceived( const FramePtr vimba_frame_ptr );
-
-  private:
-    // Frame observer stores all FramePtr
-    CameraPtr cam_ptr_;
-    Callback callback_;
+private:
+  // Frame observer stores all FramePtr
+  CameraPtr cam_ptr_;
+  Callback callback_;
 };
 
 #endif

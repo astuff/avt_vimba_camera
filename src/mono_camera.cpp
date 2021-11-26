@@ -34,17 +34,18 @@
 
 #define DEBUG_PRINTS 1
 
-namespace avt_vimba_camera {
-
-MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp) : nh_(nh), nhp_(nhp), it_(nhp), cam_(ros::this_node::getName()) {
+namespace avt_vimba_camera
+{
+MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp)
+  : nh_(nh), nhp_(nhp), it_(nhp), cam_(ros::this_node::getName())
+{
   // Prepare node handle for the camera
-  // TODO use nodelets with getMTNodeHandle()
 
   // Start Vimba & list all available cameras
   api_.start();
 
   // Set the image publisher before the streaming
-  pub_  = it_.advertiseCamera("image_raw",  1);
+  pub_ = it_.advertiseCamera("image_raw", 1);
 
   // Set the frame callback
   cam_.setCallback(boost::bind(&avt_vimba_camera::MonoCamera::frameCallback, this, _1));
@@ -59,22 +60,27 @@ MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp) : nh_(nh), nhp
   nhp_.param("ptp_offset", ptp_offset_, 0);
 
   // Set camera info manager
-  info_man_  = boost::shared_ptr<camera_info_manager::CameraInfoManager>(new camera_info_manager::CameraInfoManager(nhp_, frame_id_, camera_info_url_));
+  info_man_ = boost::shared_ptr<camera_info_manager::CameraInfoManager>(
+      new camera_info_manager::CameraInfoManager(nhp_, frame_id_, camera_info_url_));
 
   // Start dynamic_reconfigure & run configure()
   reconfigure_server_.setCallback(boost::bind(&avt_vimba_camera::MonoCamera::configure, this, _1, _2));
 }
 
-MonoCamera::~MonoCamera(void) {
+MonoCamera::~MonoCamera(void)
+{
   cam_.stop();
   pub_.shutdown();
 }
 
-void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr) {
+void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr)
+{
   ros::Time ros_time = ros::Time::now();
-  if (pub_.getNumSubscribers() > 0) {
+  if (pub_.getNumSubscribers() > 0)
+  {
     sensor_msgs::Image img;
-    if (api_.frameToImage(vimba_frame_ptr, img)) {
+    if (api_.frameToImage(vimba_frame_ptr, img))
+    {
       sensor_msgs::CameraInfo ci = info_man_->getCameraInfo();
       if (use_measurement_time_)
       {
@@ -88,7 +94,9 @@ void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr) {
       }
       img.header.frame_id = ci.header.frame_id;
       pub_.publish(img, ci);
-    } else {
+    }
+    else
+    {
       ROS_WARN_STREAM("Function frameToImage returned 0. No image published.");
     }
   }
@@ -96,31 +104,37 @@ void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr) {
 }
 
 /** Dynamic reconfigure callback
-*
-*  Called immediately when callback first defined. Called again
-*  when dynamic reconfigure starts or changes a parameter value.
-*
-*  @param newconfig new Config values
-*  @param level bit-wise OR of reconfiguration levels for all
-*               changed parameters (0xffffffff on initial call)
-**/
-void MonoCamera::configure(Config& newconfig, uint32_t level) {
-  try {
+ *
+ *  Called immediately when callback first defined. Called again
+ *  when dynamic reconfigure starts or changes a parameter value.
+ *
+ *  @param newconfig new Config values
+ *  @param level bit-wise OR of reconfiguration levels for all
+ *               changed parameters (0xffffffff on initial call)
+ **/
+void MonoCamera::configure(Config& newconfig, uint32_t level)
+{
+  try
+  {
     // The camera already stops & starts acquisition
     // so there's no problem on changing any feature.
-    if (!cam_.isOpened()) {
+    if (!cam_.isOpened())
+    {
       cam_.start(ip_, guid_, frame_id_, print_all_features_);
     }
 
     Config config = newconfig;
     cam_.updateConfig(config);
     updateCameraInfo(config);
-  } catch (const std::exception& e) {
+  }
+  catch (const std::exception& e)
+  {
     ROS_ERROR_STREAM("Error reconfiguring mono_camera node : " << e.what());
   }
 }
 
-void MonoCamera::updateCameraInfo(const avt_vimba_camera::AvtVimbaCameraConfig& config) {
+void MonoCamera::updateCameraInfo(const avt_vimba_camera::AvtVimbaCameraConfig& config)
+{
   // See REP-104 for details regarding CameraInfo parameters
 
   sensor_msgs::CameraInfo ci = info_man_->getCameraInfo();
@@ -138,23 +152,22 @@ void MonoCamera::updateCameraInfo(const avt_vimba_camera::AvtVimbaCameraConfig& 
     ROS_ERROR("Could not determine sensor pixel dimensions, camera_info will be wrong");
   }
 
-  ci.width     = sensor_width;
-  ci.height    = sensor_height;
+  ci.width = sensor_width;
+  ci.height = sensor_height;
   ci.binning_x = binning_or_decimation_x;
   ci.binning_y = binning_or_decimation_y;
 
   // ROI is in unbinned coordinates, need to scale up
-  ci.roi.width    = config.width * binning_or_decimation_x;
-  ci.roi.height   = config.height * binning_or_decimation_y;
+  ci.roi.width = config.width * binning_or_decimation_x;
+  ci.roi.height = config.height * binning_or_decimation_y;
   ci.roi.x_offset = config.offset_x * binning_or_decimation_x;
   ci.roi.y_offset = config.offset_y * binning_or_decimation_y;
 
-  bool roi_is_full_image = (ci.roi.width == ci.width &&
-                            ci.roi.height == ci.height);
+  bool roi_is_full_image = (ci.roi.width == ci.width && ci.roi.height == ci.height);
   ci.roi.do_rectify = !roi_is_full_image;
 
   // push the changes to manager
   info_man_->setCameraInfo(ci);
 }
 
-};
+};  // namespace avt_vimba_camera
