@@ -67,6 +67,7 @@ class MonoCamera {
   std::string camera_info_url_;
   std::string frame_id_;
   bool show_debug_prints_;
+  bool print_all_features_;
   bool use_measurement_time_;
   int32_t ptp_offset_;
 

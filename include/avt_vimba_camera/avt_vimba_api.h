@@ -66,12 +66,12 @@ class AvtVimbaApi {
 
   /** Translates Vimba error codes to readable error messages
     *
-    * @param error Vimba error tyme
+    * @param error Vimba error type
     * @return readable string error
     *
     **/
-  std::string errorCodeToMessage(VmbErrorType error) {
-    std::map<VmbErrorType, std::string> error_msg;
+  std::string errorCodeToMessage(VmbError_t error) {
+    std::map<VmbError_t, std::string> error_msg;
     error_msg[VmbErrorSuccess]        = "Success.";
     error_msg[VmbErrorApiNotStarted]  = "API not started.";
     error_msg[VmbErrorNotFound]       = "Not found.";
@@ -92,7 +92,7 @@ class AvtVimbaApi {
     error_msg[VmbErrorInternalFault]  = "Unexpected fault in VmbApi or driver.";
     error_msg[VmbErrorMoreData]       = "More data returned than memory provided.";
 
-    std::map<VmbErrorType, std::string>::const_iterator iter =
+    std::map<VmbError_t, std::string>::const_iterator iter =
       error_msg.find(error);
     if ( error_msg.end() != iter ) {
       return iter->second;

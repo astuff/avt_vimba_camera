@@ -55,6 +55,7 @@ MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp) : nh_(nh), nhp
   nhp_.param("camera_info_url", camera_info_url_, std::string(""));
   nhp_.param("frame_id", frame_id_, std::string(""));
   nhp_.param("show_debug_prints", show_debug_prints_, false);
+  nhp_.param("print_all_features", print_all_features_, false);
   nhp_.param("use_measurement_time", use_measurement_time_, false);
   nhp_.param("ptp_offset", ptp_offset_, 0);
 
@@ -109,7 +110,7 @@ void MonoCamera::configure(Config& newconfig, uint32_t level) {
     // The camera already stops & starts acquisition
     // so there's no problem on changing any feature.
     if (!cam_.isOpened()) {
-      cam_.start(ip_, guid_, frame_id_, show_debug_prints_);
+      cam_.start(ip_, guid_, frame_id_, show_debug_prints_, print_all_features_);
     }
 
     Config config = newconfig;
