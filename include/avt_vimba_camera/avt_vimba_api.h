@@ -100,6 +100,33 @@ class AvtVimbaApi {
     return "Unsupported error code passed.";
   }
 
+  std::string interfaceToString(VmbInterfaceType interfaceType) {
+    switch ( interfaceType ) {
+      case VmbInterfaceFirewire: return "FireWire";
+        break;
+      case VmbInterfaceEthernet: return "GigE";
+        break;
+      case VmbInterfaceUsb: return "USB";
+        break;
+      default: return "Unknown";
+    }
+  }
+
+  std::string accessModeToString(VmbAccessModeType modeType) {
+    std::string s;
+    if (modeType & VmbAccessModeFull)
+      s = std::string("Read and write access");
+    else if (modeType & VmbAccessModeRead)
+      s = std::string("Only read access");
+    else if (modeType & VmbAccessModeConfig)
+      s = std::string("Device configuration access");
+    else if (modeType & VmbAccessModeLite)
+      s = std::string("Device read/write access without feature access (only addresses)");
+    else if (modeType & VmbAccessModeNone)
+      s = std::string("No access");
+    return s;
+  }
+
   bool frameToImage(const FramePtr vimba_frame_ptr, sensor_msgs::Image& image) {
     VmbPixelFormatType pixel_format;
     VmbUint32_t width, height, nSize;
@@ -171,26 +198,25 @@ class AvtVimbaApi {
   VimbaSystem& vs;
 
   void listAvailableCameras(void) {
-    std::string name;
+    ROS_INFO("Searching for cameras ...");
     CameraPtrVector cameras;
     if (VmbErrorSuccess == vs.Startup()) {
       if (VmbErrorSuccess == vs.GetCameras(cameras)) {
-        for (CameraPtrVector::iterator iter = cameras.begin();
-        cameras.end() != iter;
-        ++iter) {
-          if (VmbErrorSuccess == (*iter)->GetName(name)) {
-            ROS_DEBUG_STREAM("[" << ros::this_node::getName() << "]: Found camera: ");
-          }
-          std::string strID;            // The ID of the cam
-          std::string strName;          // The name of the cam
-          std::string strModelname;     // The model name of the cam
-          std::string strSerialNumber;  // The serial number of the cam
-          std::string strInterfaceID;  // The ID of the interface the cam is connected to
+        for (CameraPtrVector::iterator iter = cameras.begin(); cameras.end() != iter; ++iter) {
+          std::string strID;
+          std::string strName;
+          std::string strModelname;
+          std::string strSerialNumber;
+          std::string strInterfaceID;
+          VmbInterfaceType interfaceType;
+          VmbAccessModeType accessType;
+
           VmbErrorType err = (*iter)->GetID( strID );
           if ( VmbErrorSuccess != err )
           {
               ROS_ERROR_STREAM("[Could not get camera ID. Error code: " << err << "]");
           }
+
           err = (*iter)->GetName( strName );
           if ( VmbErrorSuccess != err )
           {
@@ -214,12 +240,26 @@ class AvtVimbaApi {
           {
               ROS_ERROR_STREAM("[Could not get interface ID. Error code: " << err << "]");
           }
-          ROS_INFO_STREAM("\t/// Camera Name: " << strName);
-          ROS_INFO_STREAM("\t/// Model Name: " << strModelname);
-          ROS_INFO_STREAM("\t/// Camera ID: " << strID);
-          ROS_INFO_STREAM("\t/// Serial Number: " << strSerialNumber);
-          ROS_INFO_STREAM("\t/// @ Interface ID: " << strInterfaceID);
 
+          err = (*iter)->GetInterfaceType( interfaceType );
+          if ( VmbErrorSuccess != err )
+          {
+              ROS_ERROR_STREAM("[Could not get interface type. Error code: " << err << "]");
+          }
+
+          err = (*iter)->GetPermittedAccess( accessType );
+          if ( VmbErrorSuccess != err )
+          {
+              ROS_ERROR_STREAM("[Could not get access type. Error code: " << err << "]");
+          }
+
+          ROS_INFO_STREAM("Found camera named " << strName << ":");
+          ROS_INFO_STREAM(" - Model Name     : " << strModelname);
+          ROS_INFO_STREAM(" - Camera ID      : " << strID);
+          ROS_INFO_STREAM(" - Serial Number  : " << strSerialNumber);
+          ROS_INFO_STREAM(" - Interface ID   : " << strInterfaceID);
+          ROS_INFO_STREAM(" - Interface type : " << interfaceToString(interfaceType));
+          ROS_INFO_STREAM(" - Access type    : " << accessModeToString(accessType));
         }
       } else {
         ROS_WARN("Could not get cameras from Vimba System");
