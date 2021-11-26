@@ -5,13 +5,11 @@ find_package(catkin REQUIRED COMPONENTS
   camera_info_manager
   diagnostic_updater
   dynamic_reconfigure
-  image_geometry
   image_transport
   message_filters
   roscpp
   sensor_msgs
   std_msgs
-  polled_camera
   nodelet
 )
 
@@ -27,7 +25,7 @@ generate_dynamic_reconfigure_options(
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS camera_info_manager diagnostic_updater dynamic_reconfigure image_geometry image_transport roscpp sensor_msgs std_msgs polled_camera
+  CATKIN_DEPENDS camera_info_manager diagnostic_updater dynamic_reconfigure image_transport roscpp sensor_msgs std_msgs
 )
 
 ###########
@@ -41,14 +39,14 @@ include_directories(
 
 # C++11 support
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 elseif(COMPILER_SUPPORTS_CXX0X)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else()
-  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 endif()
 
 function(add_dependencies_and_linkings arg)
@@ -79,34 +77,34 @@ function(add_dependencies_and_linkings arg)
   endif()
 endfunction(add_dependencies_and_linkings)
 
+# Nodes
 add_executable(mono_camera_node
   src/nodes/mono_camera_node.cpp
   src/mono_camera.cpp
   src/avt_vimba_camera.cpp
   src/frame_observer.cpp
 )
-
 add_dependencies_and_linkings(mono_camera_node)
 
 add_executable(sync_node
   src/nodes/sync_node.cpp
   src/sync.cpp
 )
-
 add_dependencies_and_linkings(sync_node)
 
 add_executable(trigger_node
   src/nodes/trigger_node.cpp
   src/trigger.cpp
 )
-
 add_dependencies_and_linkings(trigger_node)
 
+# Nodelets
 add_library(avt_camera_nodelets
   src/nodes/mono_camera_nodelet.cpp
   src/mono_camera.cpp
   src/avt_vimba_camera.cpp
-  src/frame_observer.cpp)
+  src/frame_observer.cpp
+)
 add_dependencies_and_linkings(avt_camera_nodelets)
 
 #############
@@ -114,7 +112,11 @@ add_dependencies_and_linkings(avt_camera_nodelets)
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS mono_camera_node avt_camera_nodelets
+install(TARGETS
+  mono_camera_node
+  sync_node
+  trigger_node
+  avt_camera_nodelets
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -124,11 +126,11 @@ install(TARGETS mono_camera_node avt_camera_nodelets
 install(DIRECTORY include
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.h"
-  PATTERN ".svn" EXCLUDE
 )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 install(FILES
+  README.md
   plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

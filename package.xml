@@ -1,49 +1,33 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>avt_vimba_camera</name>
   <version>0.0.12</version>
-  <description>Wrapper of the Allied Vision Technologies (AVT) VIMBA Ethernet and Firewire SDK.</description>
-
-  <maintainer email="miquel.massot@uib.cat">Miquel Massot</maintainer>
-
+  <description>Camera driver for Allied Vision Technologies (AVT) cameras, based on their Vimba SDK.</description>
   <license>BSD</license>
 
-  <url type="website">http://wiki.ros.org/avt_vimba_ros</url>
+  <url type="website">https://github.com/astuff/avt_vimba_camera</url>
+  <url type="repository">https://github.com/astuff/avt_vimba_camera</url>
+  <url type="bugtracker">https://github.com/astuff/avt_vimba_camera/issues</url>
 
-  <author email="miquel.massot@gmail.com">Miquel Massot</author>
   <author>Allied Vision Technologies</author>
+  <author email="miquel.massot@gmail.com">Miquel Massot</author>
+  <maintainer email="software@autonomoustuff.com">AutonomouStuff Software Team</maintainer>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>camera_info_manager</build_depend>
-  <build_depend>diagnostic_updater</build_depend>
-  <build_depend>dynamic_reconfigure</build_depend>
-  <build_depend>image_geometry</build_depend>
-  <build_depend>image_transport</build_depend>
-  <build_depend>message_filters</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>polled_camera</build_depend>
-  <build_depend>nodelet</build_depend>
-  <!--build_depend>libvimba</build_depend-->
-  <run_depend>camera_info_manager</run_depend>
-  <run_depend>diagnostic_updater</run_depend>
-  <run_depend>dynamic_reconfigure</run_depend>
-  <run_depend>image_geometry</run_depend>
-  <run_depend>image_transport</run_depend>
-  <run_depend>message_filters</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>polled_camera</run_depend>
-  <run_depend>nodelet</run_depend>
+  <depend>camera_info_manager</depend>
+  <depend>diagnostic_updater</depend>
+  <depend>dynamic_reconfigure</depend>
+  <depend>image_transport</depend>
+  <depend>message_filters</depend>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>nodelet</depend>
 
-  <run_depend>image_proc</run_depend>
-  <run_depend>stereo_image_proc</run_depend>
+  <exec_depend>image_proc</exec_depend>
+  <exec_depend>stereo_image_proc</exec_depend>
 
-  <!--run_depend>libvimba</run_depend-->
   <export>
     <nodelet plugin="${prefix}/plugins.xml" />
   </export>
-
 </package>
