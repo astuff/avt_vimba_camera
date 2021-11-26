@@ -158,8 +158,6 @@ class AvtVimbaCamera {
   bool getFeatureValue(const std::string& feature_str, T& val);
   bool getFeatureValue(const std::string& feature_str, std::string& val);
   bool runCommand(const std::string& command_str);
-  // std::string interfaceToString(VmbInterfaceType interfaceType);
-  // std::string accessModeToString(VmbAccessModeType modeType);
   int getTriggerModeInt(std::string mode_str);
   void printAllCameraFeatures(const CameraPtr& camera);
 
