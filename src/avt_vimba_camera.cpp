@@ -294,7 +294,7 @@ void AvtVimbaCamera::stop() {
   opened_ = false;
 }
 
-CameraPtr AvtVimbaCamera::openCamera(std::string id_str, bool print_all_features) {
+CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str, bool print_all_features) {
   // Details:   The ID might be one of the following:
   //            "IP:169.254.12.13",
   //            "MAC:000f31000001",

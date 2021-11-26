@@ -141,7 +141,7 @@ class AvtVimbaCamera {
   std::string trigger_source_;
   int trigger_source_int_;
 
-  CameraPtr openCamera(std::string id_str, bool print_all_features);
+  CameraPtr openCamera(const std::string& id_str, bool print_all_features);
 
   frameCallbackFunc userFrameCallback;
   void frameCallback(const FramePtr vimba_frame_ptr);
