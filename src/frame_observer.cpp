@@ -36,7 +36,6 @@
 FrameObserver::FrameObserver(CameraPtr cam_ptr, Callback callback)
   : IFrameObserver(cam_ptr), callback_(callback), cam_ptr_(cam_ptr)
 {
-  // Nothing
 }
 
 void FrameObserver::FrameReceived(const FramePtr vimba_frame_ptr)

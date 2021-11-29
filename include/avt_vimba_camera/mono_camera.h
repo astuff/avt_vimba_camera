@@ -58,9 +58,6 @@ private:
   AvtVimbaApi api_;
   AvtVimbaCamera cam_;
 
-  // diagnostic_updater::Updater updater_;
-  // diagnostic_updater::TopicDiagnostic* pub_freq_;
-
   ros::NodeHandle nh_;
   ros::NodeHandle nhp_;
 

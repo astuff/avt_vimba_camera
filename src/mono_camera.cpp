@@ -39,8 +39,6 @@ namespace avt_vimba_camera
 MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp)
   : nh_(nh), nhp_(nhp), it_(nhp), cam_(ros::this_node::getName())
 {
-  // Prepare node handle for the camera
-
   // Start Vimba & list all available cameras
   api_.start();
 
@@ -100,7 +98,6 @@ void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr)
       ROS_WARN_STREAM("Function frameToImage returned 0. No image published.");
     }
   }
-  // updater_.update();
 }
 
 /** Dynamic reconfigure callback
@@ -133,10 +130,9 @@ void MonoCamera::configure(Config& newconfig, uint32_t level)
   }
 }
 
+// See REP-104 for details regarding CameraInfo parameters
 void MonoCamera::updateCameraInfo(const avt_vimba_camera::AvtVimbaCameraConfig& config)
 {
-  // See REP-104 for details regarding CameraInfo parameters
-
   sensor_msgs::CameraInfo ci = info_man_->getCameraInfo();
 
   // Set the operational parameters in CameraInfo (binning, ROI)

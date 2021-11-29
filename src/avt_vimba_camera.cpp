@@ -34,7 +34,6 @@
 #include <avt_vimba_camera/avt_vimba_api.h>
 
 #include <ros/ros.h>
-#include <ros/console.h>
 
 #include <signal.h>
 
@@ -179,13 +178,12 @@ void AvtVimbaCamera::stop()
   opened_ = false;
 }
 
-void AvtVimbaCamera::startImaging(void)
+void AvtVimbaCamera::startImaging()
 {
   if (!streaming_)
   {
     // Start streaming
-    VmbErrorType err = vimba_camera_ptr_->StartContinuousImageAcquisition(1,  // num_frames_,
-                                                                          IFrameObserverPtr(frame_obs_ptr_));
+    VmbErrorType err = vimba_camera_ptr_->StartContinuousImageAcquisition(3, IFrameObserverPtr(frame_obs_ptr_));
     if (err == VmbErrorSuccess)
     {
       diagnostic_msg_ = "Starting continuous image acquisition";
@@ -208,7 +206,7 @@ void AvtVimbaCamera::startImaging(void)
   updater_.update();
 }
 
-void AvtVimbaCamera::stopImaging(void)
+void AvtVimbaCamera::stopImaging()
 {
   if (streaming_ || on_init_)
   {
@@ -234,44 +232,6 @@ void AvtVimbaCamera::stopImaging(void)
   }
   updater_.update();
 }
-
-void AvtVimbaCamera::updateConfig(Config& config)
-{
-  boost::mutex::scoped_lock lock(config_mutex_);
-
-  if (streaming_)
-  {
-    stopImaging();
-    ros::Duration(0.5).sleep();  // sleep for half a second
-  }
-
-  if (on_init_)
-  {
-    config_ = config;
-  }
-  diagnostic_msg_ = "Updating configuration";
-
-  updateExposureConfig(config);
-  updateGainConfig(config);
-  updateWhiteBalanceConfig(config);
-  updateImageModeConfig(config);
-  updateROIConfig(config);
-  updateBandwidthConfig(config);
-  updateGPIOConfig(config);
-  updatePtpModeConfig(config);
-  updatePixelFormatConfig(config);
-  updateAcquisitionConfig(config);
-  updateIrisConfig(config);
-  config_ = config;
-
-  if (on_init_)
-  {
-    on_init_ = false;
-  }
-
-  startImaging();
-}
-
 
 CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str, bool print_all_features)
 {
@@ -354,7 +314,20 @@ void AvtVimbaCamera::frameCallback(const FramePtr vimba_frame_ptr)
   updater_.update();
 }
 
-double AvtVimbaCamera::getDeviceTemp(void)
+double AvtVimbaCamera::getTimestamp()
+{
+  double timestamp = -1.0;
+  if (runCommand("GevTimestampControlLatch"))
+  {
+    VmbInt64_t freq, ticks;
+    getFeatureValue("GevTimestampTickFrequency", freq);
+    getFeatureValue("GevTimestampValue", ticks);
+    timestamp = static_cast<double>(ticks) / static_cast<double>(freq);
+  }
+  return timestamp;
+}
+
+double AvtVimbaCamera::getDeviceTemp()
 {
   double temp = -1.0;
   if (setFeatureValue("DeviceTemperatureSelector", "Main") == VmbErrorSuccess)
@@ -388,19 +361,6 @@ int AvtVimbaCamera::getSensorHeight()
   {
     return -1;
   }
-}
-
-double AvtVimbaCamera::getTimestamp(void)
-{
-  double timestamp = -1.0;
-  if (runCommand("GevTimestampControlLatch"))
-  {
-    VmbInt64_t freq, ticks;
-    getFeatureValue("GevTimestampTickFrequency", freq);
-    getFeatureValue("GevTimestampValue", ticks);
-    timestamp = ((double)ticks) / ((double)freq);
-  }
-  return timestamp;
 }
 
 double AvtVimbaCamera::getTimestampRealTime(VmbUint64_t timestamp_ticks)
@@ -476,60 +436,6 @@ VmbErrorType AvtVimbaCamera::setFeatureValue(const std::string& feature_str, con
   return err;
 }
 
-// Tries to configure a camera feature.
-// Updates the config value passed in if a different config is in use by the camera.
-template <typename Vimba_Type, typename Std_Type>
-void AvtVimbaCamera::configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out)
-{
-  Vimba_Type actual_value;
-
-  VmbErrorType return_value = setFeatureValue(feature_str, val_in);
-  if (return_value == VmbErrorSuccess || return_value == VmbErrorInvalidValue)
-  {
-    getFeatureValue(feature_str, actual_value);
-    if (val_in == actual_value)
-    {
-      ROS_INFO_STREAM(" - " << feature_str << " set to " << actual_value);
-    }
-    else
-    {
-      ROS_WARN_STREAM(" - Tried to set " << feature_str << " to " << val_in << " but the camera used " << actual_value
-                                         << " instead");
-      val_out = static_cast<Std_Type>(actual_value);
-    }
-  }
-  else
-  {
-    val_out = static_cast<Std_Type>(val_in);
-  }
-}
-
-// Overloaded for strings, template specialization doesn't currently compile with GCC
-void AvtVimbaCamera::configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out)
-{
-  std::string actual_value;
-
-  VmbErrorType return_value = setFeatureValue(feature_str, val_in.c_str());
-  if (return_value == VmbErrorSuccess || return_value == VmbErrorInvalidValue)
-  {
-    getFeatureValue(feature_str, actual_value);
-    if (val_in == actual_value)
-    {
-      ROS_INFO_STREAM(" - " << feature_str << " set to " << actual_value);
-    }
-    else
-    {
-      ROS_WARN_STREAM(" - Tried to set " << feature_str << " to " << val_in << " but the camera used " << actual_value
-                                         << " instead");
-      val_out = actual_value;
-    }
-  }
-  else
-  {
-    val_out = val_in;
-  }
-}
-
 // Template function to GET a feature value from the camera
 template <typename T>
 bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, T& val)
@@ -592,7 +498,7 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, T& val)
   }
   else
   {
-    ROS_WARN_STREAM("[" << name_ << "]: Could not get feature " << feature_str);
+    ROS_WARN_STREAM("Could not get feature " << feature_str);
   }
   return (err == VmbErrorSuccess);
 }
@@ -649,9 +555,63 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, std::string
   }
   else
   {
-    ROS_WARN_STREAM("[" << name_ << "]: Could not get feature " << feature_str);
+    ROS_WARN_STREAM("Could not get feature " << feature_str);
   }
   return (err == VmbErrorSuccess);
+}
+
+// Tries to configure a camera feature.
+// Updates the config value passed in if a different config is in use by the camera.
+template <typename Vimba_Type, typename Std_Type>
+void AvtVimbaCamera::configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out)
+{
+  Vimba_Type actual_value;
+
+  VmbErrorType return_value = setFeatureValue(feature_str, val_in);
+  if (return_value == VmbErrorSuccess || return_value == VmbErrorInvalidValue)
+  {
+    getFeatureValue(feature_str, actual_value);
+    if (val_in == actual_value)
+    {
+      ROS_INFO_STREAM(" - " << feature_str << " set to " << actual_value);
+    }
+    else
+    {
+      ROS_WARN_STREAM(" - Tried to set " << feature_str << " to " << val_in << " but the camera used " << actual_value
+                                         << " instead");
+      val_out = static_cast<Std_Type>(actual_value);
+    }
+  }
+  else
+  {
+    val_out = static_cast<Std_Type>(val_in);
+  }
+}
+
+// Overloaded for strings, template specialization doesn't currently compile with GCC
+void AvtVimbaCamera::configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out)
+{
+  std::string actual_value;
+
+  VmbErrorType return_value = setFeatureValue(feature_str, val_in.c_str());
+  if (return_value == VmbErrorSuccess || return_value == VmbErrorInvalidValue)
+  {
+    getFeatureValue(feature_str, actual_value);
+    if (val_in == actual_value)
+    {
+      ROS_INFO_STREAM(" - " << feature_str << " set to " << actual_value);
+    }
+    else
+    {
+      ROS_WARN_STREAM(" - Tried to set " << feature_str << " to " << val_in << " but the camera used " << actual_value
+                                         << " instead");
+      val_out = actual_value;
+    }
+  }
+  else
+  {
+    val_out = val_in;
+  }
 }
 
 // Template function to RUN a command
@@ -679,14 +639,14 @@ bool AvtVimbaCamera::runCommand(const std::string& command_str)
     }
     else
     {
-      ROS_WARN_STREAM("[" << name_ << "]: Could not run command " << command_str
+      ROS_WARN_STREAM("Could not run command " << command_str
                           << ". Error: " << api_.errorCodeToMessage(err));
       return false;
     }
   }
   else
   {
-    ROS_WARN_STREAM("[" << name_ << "]: Could not get feature command " << command_str
+    ROS_WARN_STREAM("Could not get feature command " << command_str
                         << ". Error: " << api_.errorCodeToMessage(err));
     return false;
   }
@@ -872,6 +832,43 @@ void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera)
   {
     std::cout << "Could not get features. Error code: " << api_.errorCodeToMessage(err) << std::endl;
   }
+}
+
+void AvtVimbaCamera::updateConfig(Config& config)
+{
+  boost::mutex::scoped_lock lock(config_mutex_);
+
+  if (streaming_)
+  {
+    stopImaging();
+    ros::Duration(0.5).sleep();  // sleep for half a second
+  }
+
+  if (on_init_)
+  {
+    config_ = config;
+  }
+  diagnostic_msg_ = "Updating configuration";
+
+  updateExposureConfig(config);
+  updateGainConfig(config);
+  updateWhiteBalanceConfig(config);
+  updateImageModeConfig(config);
+  updateROIConfig(config);
+  updateBandwidthConfig(config);
+  updateGPIOConfig(config);
+  updatePtpModeConfig(config);
+  updatePixelFormatConfig(config);
+  updateAcquisitionConfig(config);
+  updateIrisConfig(config);
+  config_ = config;
+
+  if (on_init_)
+  {
+    on_init_ = false;
+  }
+
+  startImaging();
 }
 
 /** Change the Trigger configuration */
@@ -1199,19 +1196,9 @@ void AvtVimbaCamera::updateGPIOConfig(Config& config)
 
 void AvtVimbaCamera::getCurrentState(diagnostic_updater::DiagnosticStatusWrapper& stat)
 {
-  stat.add("Serial", guid_);
+  stat.add("ID", guid_);
   stat.add("Info", diagnostic_msg_);
-  // stat.add("Intrinsics", intrinsics_);
-  // stat.add("Total frames dropped", frames_dropped_total_);
-  // stat.add("Total frames", frames_completed_total_);
-
-  // if (frames_completed_total_ > 0) {
-  //   stat.add("Total % frames dropped", 100.*(double)frames_dropped_total_/frames_completed_total_);
-  // }
-
-  // if (frames_completed_acc_.sum() > 0) {
-  //   stat.add("Recent % frames dropped", 100.*frames_dropped_acc_.sum()/frames_completed_acc_.sum());
-  // }
+  stat.add("Temperature", getDeviceTemp());
 
   switch (camera_state_)
   {
@@ -1226,7 +1213,6 @@ void AvtVimbaCamera::getCurrentState(diagnostic_updater::DiagnosticStatusWrapper
       break;
     case CAMERA_NOT_FOUND:
       stat.summaryf(diagnostic_msgs::DiagnosticStatus::ERROR, "Cannot find requested camera %s", guid_.c_str());
-      // stat.add("Available Cameras", getAvailableCameras());
       break;
     case FORMAT_ERROR:
       stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Problem retrieving frame");

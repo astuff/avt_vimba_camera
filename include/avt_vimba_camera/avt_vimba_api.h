@@ -53,7 +53,7 @@ namespace avt_vimba_camera
 class AvtVimbaApi
 {
 public:
-  AvtVimbaApi(void) : vs(VimbaSystem::GetInstance())
+  AvtVimbaApi() : vs(VimbaSystem::GetInstance())
   {
   }
 
@@ -243,7 +243,7 @@ public:
 private:
   VimbaSystem& vs;
 
-  void listAvailableCameras(void)
+  void listAvailableCameras()
   {
     ROS_INFO("Searching for cameras ...");
     CameraPtrVector cameras;

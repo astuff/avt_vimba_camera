@@ -90,24 +90,16 @@ public:
   void stop();
 
   void updateConfig(Config& config);
-  void startImaging(void);
-  void stopImaging(void);
+  void startImaging();
+  void stopImaging();
 
   // Utility functions
   double getTimestampRealTime(VmbUint64_t timestamp_ticks);
-  bool isOpened(void) { return opened_; }
+  bool isOpened() { return opened_; }
 
   // Getters
-
-  double getTimestamp(void);
-  // bool resetTimestamp(void);
-  double getDeviceTemp(void);
-
-  // CameraPtr getCameraPtr(void)
-  // {
-  //   return vimba_camera_ptr_;
-  // }
-
+  double getTimestamp();
+  double getDeviceTemp();
   int getSensorWidth();
   int getSensorHeight();
 
@@ -128,31 +120,22 @@ private:
   CameraPtr vimba_camera_ptr_;
   // Current frame
   FramePtr vimba_frame_ptr_;
-  // The max width
-  VmbInt64_t vimba_camera_max_width_;
-  // The max height
-  VmbInt64_t vimba_camera_max_height_;
   // Tick frequency of the on-board clock. Equal to 1 GHz when PTP is in use.
   VmbInt64_t vimba_timestamp_tick_freq_ = 1;
 
   // Mutex
   boost::mutex config_mutex_;
 
+  CameraState camera_state_;
   bool opened_;
   bool streaming_;
   bool on_init_;
   std::string name_;
-
-  diagnostic_updater::Updater updater_;
-  CameraState camera_state_;
-  std::string diagnostic_msg_;
-
-  // ROS params
-  int num_frames_;
   std::string guid_;
   std::string frame_id_;
-  std::string trigger_source_;
-  int trigger_source_int_;
+
+  diagnostic_updater::Updater updater_;
+  std::string diagnostic_msg_;
 
   CameraPtr openCamera(const std::string& id_str, bool print_all_features);
 
@@ -165,12 +148,13 @@ private:
 
   template <typename T>
   VmbErrorType setFeatureValue(const std::string& feature_str, const T& val);
-  template <typename Vimba_Type, typename Std_Type>
-  void configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out);
-  void configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out);
   template <typename T>
   bool getFeatureValue(const std::string& feature_str, T& val);
   bool getFeatureValue(const std::string& feature_str, std::string& val);
+  template <typename Vimba_Type, typename Std_Type>
+  void configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out);
+  void configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out);
+
   bool runCommand(const std::string& command_str);
   int getTriggerModeInt(std::string mode_str);
   void printAllCameraFeatures(const CameraPtr& camera);
