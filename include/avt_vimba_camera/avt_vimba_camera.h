@@ -93,7 +93,10 @@ public:
 
   // Utility functions
   double getTimestampRealTime(VmbUint64_t timestamp_ticks);
-  bool isOpened() { return opened_; }
+  bool isOpened()
+  {
+    return opened_;
+  }
 
   // Getters
   double getTimestamp();

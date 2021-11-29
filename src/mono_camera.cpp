@@ -62,7 +62,8 @@ MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp)
       new camera_info_manager::CameraInfoManager(nhp_, frame_id_, camera_info_url_));
 
   // Start dynamic_reconfigure & run configure()
-  reconfigure_server_.setCallback(std::bind(&avt_vimba_camera::MonoCamera::configure, this, std::placeholders::_1, std::placeholders::_2));
+  reconfigure_server_.setCallback(
+      std::bind(&avt_vimba_camera::MonoCamera::configure, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 MonoCamera::~MonoCamera(void)

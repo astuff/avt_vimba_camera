@@ -158,8 +158,9 @@ void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_st
       trigger_source_int == Action0 || trigger_source_int == Action1)
   {
     // Create a frame observer for this camera
-    SP_SET(frame_obs_ptr_, new FrameObserver(vimba_camera_ptr_,
-                                             std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
+    SP_SET(frame_obs_ptr_,
+           new FrameObserver(vimba_camera_ptr_,
+                             std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
     camera_state_ = IDLE;
   }
   else
@@ -304,7 +305,7 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str, bool print_all_f
 
 void AvtVimbaCamera::frameCallback(const FramePtr vimba_frame_ptr)
 {
-  std::unique_lock<std::mutex> lock (config_mutex_);
+  std::unique_lock<std::mutex> lock(config_mutex_);
   camera_state_ = OK;
   diagnostic_msg_ = "Camera operating normally";
 
@@ -640,15 +641,13 @@ bool AvtVimbaCamera::runCommand(const std::string& command_str)
     }
     else
     {
-      ROS_WARN_STREAM("Could not run command " << command_str
-                          << ". Error: " << api_.errorCodeToMessage(err));
+      ROS_WARN_STREAM("Could not run command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
       return false;
     }
   }
   else
   {
-    ROS_WARN_STREAM("Could not get feature command " << command_str
-                        << ". Error: " << api_.errorCodeToMessage(err));
+    ROS_WARN_STREAM("Could not get feature command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
     return false;
   }
 }
@@ -837,7 +836,7 @@ void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera)
 
 void AvtVimbaCamera::updateConfig(Config& config)
 {
-  std::unique_lock<std::mutex> lock (config_mutex_);
+  std::unique_lock<std::mutex> lock(config_mutex_);
 
   if (streaming_)
   {
