@@ -72,7 +72,7 @@ private:
   image_transport::ImageTransport it_;
   image_transport::CameraPublisher pub_;
 
-  boost::shared_ptr<camera_info_manager::CameraInfoManager> info_man_;
+  std::shared_ptr<camera_info_manager::CameraInfoManager> info_man_;
 
   // Dynamic reconfigure
   typedef avt_vimba_camera::AvtVimbaCameraConfig Config;

@@ -33,16 +33,16 @@
 #ifndef FRAME_OBSERVER_H
 #define FRAME_OBSERVER_H
 
-#include <boost/function.hpp>
-
 #include <VimbaCPP/Include/VimbaCPP.h>
+
+#include <functional>
 
 using namespace AVT::VmbAPI;
 
 class FrameObserver : virtual public IFrameObserver
 {
 public:
-  typedef boost::function<void(const FramePtr vimba_frame_ptr)> Callback;
+  typedef std::function<void(const FramePtr vimba_frame_ptr)> Callback;
 
   // We pass the camera that will deliver the frames to the constructor
   FrameObserver(CameraPtr cam_ptr, Callback callback);

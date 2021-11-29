@@ -36,7 +36,6 @@
 #include <VimbaCPP/Include/VimbaCPP.h>
 
 #include <ros/ros.h>
-#include <ros/console.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/fill_image.h>

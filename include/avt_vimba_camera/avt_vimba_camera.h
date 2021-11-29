@@ -42,9 +42,6 @@
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <diagnostic_updater/publisher.h>
 
-#include <boost/function.hpp>
-#include <boost/thread.hpp>
-
 #include <string>
 
 using AVT::VmbAPI::CameraPtr;
@@ -81,6 +78,7 @@ class AvtVimbaCamera
 {
 public:
   typedef avt_vimba_camera::AvtVimbaCameraConfig Config;
+  typedef std::function<void(const FramePtr)> frameCallbackFunc;
 
   AvtVimbaCamera();
   AvtVimbaCamera(const std::string& name);
@@ -104,8 +102,7 @@ public:
   int getSensorHeight();
 
   // Setters
-  typedef boost::function<void(const FramePtr)> frameCallbackFunc;
-  void setCallback(frameCallbackFunc callback = &avt_vimba_camera::AvtVimbaCamera::defaultFrameCallback)
+  void setCallback(frameCallbackFunc callback)
   {
     userFrameCallback = callback;
   }
@@ -124,7 +121,7 @@ private:
   VmbInt64_t vimba_timestamp_tick_freq_ = 1;
 
   // Mutex
-  boost::mutex config_mutex_;
+  std::mutex config_mutex_;
 
   CameraState camera_state_;
   bool opened_;
@@ -141,10 +138,6 @@ private:
 
   frameCallbackFunc userFrameCallback;
   void frameCallback(const FramePtr vimba_frame_ptr);
-  void defaultFrameCallback(const FramePtr vimba_frame_ptr)
-  {
-    std::cout << "[AvtVimbaCamera] No frame callback provided." << std::endl;
-  }
 
   template <typename T>
   VmbErrorType setFeatureValue(const std::string& feature_str, const T& val);

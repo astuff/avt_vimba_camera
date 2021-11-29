@@ -54,15 +54,12 @@ void Sync::run()
   left_info_sub.subscribe(nh_, camera_ + "/left/camera_info", 5);
   right_info_sub.subscribe(nh_, camera_ + "/right/camera_info", 5);
 
-  boost::shared_ptr<SyncType> sync_var;
+  std::shared_ptr<SyncType> sync_var;
   sync_var.reset(new SyncType(SyncPolicy(5), left_sub, right_sub, left_info_sub, right_info_sub));
   sync_var->registerCallback(bind(&Sync::msgsCallback, this, _1, _2, _3, _4));
 
   // Sync timer
   sync_timer_ = nh_.createTimer(ros::Duration(timer_period_), &Sync::syncCallback, this);
-
-  // Publish info
-  pub_info_ = nhp_.advertise<std_msgs::String>("info", 1, true);
 
   ros::spin();
 }
@@ -90,11 +87,6 @@ void Sync::syncCallback(const ros::TimerEvent&)
   {
     // No sync!
     ROS_WARN_STREAM("[SyncNode]: No sync during " << now - last_ros_sync_ << " sec.");
-
-    // Publish info
-    std_msgs::String msg;
-    msg.data = "Reseting camera driver at ROSTIME: " + boost::lexical_cast<string>(now) + "s.";
-    pub_info_.publish(msg);
   }
 }
 

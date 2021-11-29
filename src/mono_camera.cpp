@@ -46,7 +46,7 @@ MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp)
   pub_ = it_.advertiseCamera("image_raw", 1);
 
   // Set the frame callback
-  cam_.setCallback(boost::bind(&avt_vimba_camera::MonoCamera::frameCallback, this, _1));
+  cam_.setCallback(std::bind(&avt_vimba_camera::MonoCamera::frameCallback, this, std::placeholders::_1));
 
   // Set the params
   nhp_.param("ip", ip_, std::string(""));
@@ -58,11 +58,11 @@ MonoCamera::MonoCamera(ros::NodeHandle& nh, ros::NodeHandle& nhp)
   nhp_.param("ptp_offset", ptp_offset_, 0);
 
   // Set camera info manager
-  info_man_ = boost::shared_ptr<camera_info_manager::CameraInfoManager>(
+  info_man_ = std::shared_ptr<camera_info_manager::CameraInfoManager>(
       new camera_info_manager::CameraInfoManager(nhp_, frame_id_, camera_info_url_));
 
   // Start dynamic_reconfigure & run configure()
-  reconfigure_server_.setCallback(boost::bind(&avt_vimba_camera::MonoCamera::configure, this, _1, _2));
+  reconfigure_server_.setCallback(std::bind(&avt_vimba_camera::MonoCamera::configure, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 MonoCamera::~MonoCamera(void)

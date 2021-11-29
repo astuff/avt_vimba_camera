@@ -36,6 +36,7 @@
 #include <ros/ros.h>
 
 #include <signal.h>
+#include <thread>
 
 namespace avt_vimba_camera
 {
@@ -158,7 +159,7 @@ void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_st
   {
     // Create a frame observer for this camera
     SP_SET(frame_obs_ptr_, new FrameObserver(vimba_camera_ptr_,
-                                             boost::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, _1)));
+                                             std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
     camera_state_ = IDLE;
   }
   else
@@ -303,12 +304,12 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str, bool print_all_f
 
 void AvtVimbaCamera::frameCallback(const FramePtr vimba_frame_ptr)
 {
-  boost::mutex::scoped_lock lock(config_mutex_);
+  std::unique_lock<std::mutex> lock (config_mutex_);
   camera_state_ = OK;
   diagnostic_msg_ = "Camera operating normally";
 
   // Call the callback implemented by other classes
-  boost::thread thread_callback = boost::thread(userFrameCallback, vimba_frame_ptr);
+  std::thread thread_callback = std::thread(userFrameCallback, vimba_frame_ptr);
   thread_callback.join();
 
   updater_.update();
@@ -836,7 +837,7 @@ void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera)
 
 void AvtVimbaCamera::updateConfig(Config& config)
 {
-  boost::mutex::scoped_lock lock(config_mutex_);
+  std::unique_lock<std::mutex> lock (config_mutex_);
 
   if (streaming_)
   {

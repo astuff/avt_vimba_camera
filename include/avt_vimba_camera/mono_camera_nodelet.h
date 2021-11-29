@@ -1,5 +1,6 @@
-#include <nodelet/nodelet.h>
 #include "avt_vimba_camera/mono_camera.h"
+
+#include <nodelet/nodelet.h>
 
 namespace avt_vimba_camera
 {

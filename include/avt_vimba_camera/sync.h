@@ -40,7 +40,6 @@
 #include <message_filters/sync_policies/approximate_time.h>
 #include <image_transport/subscriber_filter.h>
 #include <std_msgs/String.h>
-#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
@@ -79,8 +78,6 @@ private:
 
   // Image transport
   image_transport::ImageTransport it_;
-
-  ros::Publisher pub_info_;  //!> Publish reset info
 };
 }  // namespace avt_vimba_camera
 #endif
