@@ -2,8 +2,8 @@
 Changelog for package avt_vimba_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2021-11-30)
+------------------
 * Code Cleanup and Autoformat (`#52 <https://github.com/astuff/avt_vimba_camera/issues/52>`_)
 * Improve rosout logging (`#50 <https://github.com/astuff/avt_vimba_camera/issues/50>`_)
 * Improve README (`#48 <https://github.com/astuff/avt_vimba_camera/issues/48>`_)
