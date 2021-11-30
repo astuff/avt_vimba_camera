@@ -2,15 +2,24 @@
 Changelog for package avt_vimba_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Code Cleanup and Autoformat (`#52 <https://github.com/astuff/avt_vimba_camera/issues/52>`_)
+* Improve rosout logging (`#50 <https://github.com/astuff/avt_vimba_camera/issues/50>`_)
+* Improve README (`#48 <https://github.com/astuff/avt_vimba_camera/issues/48>`_)
+* Parameter Refactor (`#46 <https://github.com/astuff/avt_vimba_camera/issues/46>`_)
+* Use timestamp from image capture in ROS header (`#41 <https://github.com/astuff/avt_vimba_camera/issues/41>`_)
+* Trigger over Ethernet (`#39 <https://github.com/astuff/avt_vimba_camera/issues/39>`_)
+* Remove stereo camera code (`#43 <https://github.com/astuff/avt_vimba_camera/issues/43>`_)
+* Update CI (`#44 <https://github.com/astuff/avt_vimba_camera/issues/44>`_)
+* Update to VimbaCPP Version 1.8.4 (SDK version 5.0) (`#36 <https://github.com/astuff/avt_vimba_camera/issues/36>`_)
+* Fixed 'escalating to SIGTERM' when closing (`#22 <https://github.com/astuff/avt_vimba_camera/issues/22>`_)
+* Contributors: icolwell-as, vbrebion
+
 0.0.12 (2020-06-05)
 -------------------
 * Fix MonoCamera nodelet (`#16 <https://github.com/astuff/avt_vimba_camera/issues/16>`_)
 * Launch File Updates (`#13 <https://github.com/astuff/avt_vimba_camera/issues/13>`_)
-
-  * Standardize launch file formatting, remove commented code
-  * Provide args for all parameters
-  * Launch file for Mako G-319
-
 * Remove duplicated launch file installs (`#15 <https://github.com/astuff/avt_vimba_camera/issues/15>`_)
 * Brief README (`#10 <https://github.com/astuff/avt_vimba_camera/issues/10>`_)
 * Add more pixelformats, thanks to @jmoreau-hds (`#3 <https://github.com/astuff/avt_vimba_camera/issues/3>`_)
