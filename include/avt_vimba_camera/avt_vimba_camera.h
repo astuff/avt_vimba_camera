@@ -43,6 +43,7 @@
 #include <diagnostic_updater/publisher.h>
 
 #include <string>
+#include <mutex>
 
 using AVT::VmbAPI::CameraPtr;
 using AVT::VmbAPI::FramePtr;
