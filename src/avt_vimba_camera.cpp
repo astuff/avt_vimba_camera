@@ -41,21 +41,9 @@
 
 namespace avt_vimba_camera
 {
-static const char* AutoMode[] = { "Off", "Once", "Continuous" };
+
 static const char* TriggerMode[] = { "Freerun", "FixedRate", "Software", "Line1",  "Line2",
                                      "Line3",   "Line4",     "Action0",  "Action1" };
-static const char* AcquisitionMode[] = { "Continuous", "SingleFrame", "MultiFrame", "Recorder" };
-static const char* PixelFormatMode[] = { "Mono8",           "Mono10",          "Mono10Packed",    "Mono12",
-                                         "Mono12Packed",    "BayerGR8",        "BayerRG8",        "BayerGB8",
-                                         "BayerBG8",        "BayerGR10",       "BayerRG10",       "BayerGB10",
-                                         "BayerBG10",       "BayerGR12",       "BayerRG12",       "BayerGB12",
-                                         "BayerBG12",       "BayerGR10Packed", "BayerRG10Packed", "BayerGB10Packed",
-                                         "BayerBG10Packed", "BayerGR12Packed", "BayerRG12Packed", "BayerGB12Packed",
-                                         "BayerBG12Packed", "RGB8Packed",      "BGR8Packed" };
-static const char* BalanceRatioMode[] = { "Red", "Blue" };
-static const char* FeatureDataType[] = { "Unknown", "int", "float", "enum", "string", "bool" };
-
-static const char* State[] = { "Opening", "Idle", "Camera not found", "Format error", "Error", "Ok" };
 
 static volatile int keepRunning = 1;
 
@@ -64,37 +52,13 @@ void intHandler(int dummy)
   keepRunning = 0;
 }
 
-// AvtVimbaCamera::AvtVimbaCamera() : AvtVimbaCamera(ros::this_node::getName().c_str())
-// {
-// }
-
-// AvtVimbaCamera::AvtVimbaCamera(const std::string& name)
-// {
-//   // Init global variables
-//   opened_ = false;     // camera connected to the api
-//   streaming_ = false;  // capturing frames
-//   on_init_ = true;     // on initialization phase
-//   name_ = name;
-
-//   camera_state_ = OPENING;
-
-//   updater_.setHardwareID("unknown");
-//   updater_.add(name_, this, &AvtVimbaCamera::getCurrentState);
-//   updater_.force_update();;
-// }
-
 AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node) : nh_(owner_node), api_(owner_node->get_logger()), updater_(owner_node)
 {
   clock_ = rclcpp::Clock(RCL_ROS_TIME);
-
-  // Init global variables
   opened_ = false;     // camera connected to the api
   streaming_ = false;  // capturing frames
   on_init_ = true;     // on initialization phase
   on_init_config_ = false;
-  // name_ = name;
-  name_ = "TEST_NAME_update";
-
   camera_state_ = OPENING;
 
   // Features that affect the camera_info parameters
@@ -106,7 +70,7 @@ AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node) : nh_(owner_node), api_
   cam_info_features_.emplace("DecimationVertical");
 
   updater_.setHardwareID("unknown");
-  updater_.add(name_, this, &AvtVimbaCamera::getCurrentState);
+  updater_.add(owner_node->get_name(), this, &AvtVimbaCamera::getCurrentState);
 }
 
 void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id, const std::string& camera_info_url)
@@ -165,7 +129,7 @@ void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_st
     RCLCPP_ERROR(nh_->get_logger(), "Can't connect to the camera: at least GUID or IP need to be set.");
     camera_state_ = ERROR;
   }
-  updater_.force_update();;
+  updater_.force_update();
 
   getFeatureValue("GevTimestampTickFrequency", vimba_timestamp_tick_freq_);
 
@@ -197,7 +161,9 @@ void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_st
     RCLCPP_ERROR_STREAM(nh_->get_logger(), "Trigger mode " << TriggerMode[trigger_source_int] << " not implemented.");
     camera_state_ = ERROR;
   }
-  updater_.force_update();;
+  updater_.force_update();
+
+  initConfig();
 }
 
 void AvtVimbaCamera::stop()
@@ -233,7 +199,7 @@ void AvtVimbaCamera::startImaging()
   {
     RCLCPP_WARN_STREAM(nh_->get_logger(), "Start imaging called, but the camera is already imaging.");
   }
-  updater_.force_update();;
+  updater_.force_update();
 }
 
 void AvtVimbaCamera::stopImaging()
@@ -260,7 +226,7 @@ void AvtVimbaCamera::stopImaging()
   {
     RCLCPP_WARN_STREAM(nh_->get_logger(), "Stop imaging called, but the camera is already stopped.");
   }
-  updater_.force_update();;
+  updater_.force_update();
 }
 
 CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
@@ -303,7 +269,6 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
     {
       RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not open camera. Retrying every two seconds ...");
       err = camera->Open(VmbAccessModeFull);
-      // ros::Duration(2.0).sleep();
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     }
     else
@@ -322,7 +287,6 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
   camera->GetName(cam_name);
   RCLCPP_INFO_STREAM(nh_->get_logger(), "Opened connection to camera named " << cam_name << " with ID " << cam_id);
 
-  // ros::Duration(2.0).sleep();
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
   opened_ = true;
@@ -339,8 +303,6 @@ void AvtVimbaCamera::frameCallback(const FramePtr vimba_frame_ptr)
   // Call the callback implemented by other classes
   std::thread thread_callback = std::thread(userFrameCallback, vimba_frame_ptr);
   thread_callback.join();
-
-  // updater_.force_update();;
 }
 
 double AvtVimbaCamera::getTimestamp()
@@ -794,9 +756,6 @@ void AvtVimbaCamera::initConfig()
 
 bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::string& feature_name, bool& is_writable)
 {
-  // TODO: move this somewhere else (header)
-  std::string param_namespace = "camera/";
-
   VmbErrorType err;
 
   err = feature->GetName(feature_name);
@@ -860,7 +819,7 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
 
         feature->GetValue(initial_value);
 
-        nh_->declare_parameter<bool>(param_namespace + feature_name, initial_value, descriptor);
+        nh_->declare_parameter<bool>(PARAM_NAMESPACE + feature_name, initial_value, descriptor);
         break;
       }
       case VmbFeatureDataInt: {
@@ -879,7 +838,7 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
         int_range.step = step;
         descriptor.integer_range.push_back(int_range);
 
-        nh_->declare_parameter<int64_t>(param_namespace + feature_name, initial_value, descriptor);
+        nh_->declare_parameter<int64_t>(PARAM_NAMESPACE + feature_name, initial_value, descriptor);
         break;
       }
       case VmbFeatureDataFloat: {
@@ -898,7 +857,7 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
         float_range.step = step;
         descriptor.floating_point_range.push_back(float_range);
 
-        nh_->declare_parameter<double>(param_namespace + feature_name, initial_value, descriptor);
+        nh_->declare_parameter<double>(PARAM_NAMESPACE + feature_name, initial_value, descriptor);
         break;
       }
       case VmbFeatureDataString:{
@@ -906,7 +865,7 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
 
         feature->GetValue(initial_value);
 
-        nh_->declare_parameter<std::string>(param_namespace + feature_name, initial_value, descriptor);
+        nh_->declare_parameter<std::string>(PARAM_NAMESPACE + feature_name, initial_value, descriptor);
         break;
       }
       case VmbFeatureDataEnum: {
@@ -931,7 +890,7 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
           descriptor.additional_constraints = enum_description;
         }
 
-        nh_->declare_parameter<std::string>(param_namespace + feature_name, initial_value, descriptor);
+        nh_->declare_parameter<std::string>(PARAM_NAMESPACE + feature_name, initial_value, descriptor);
         break;
       }
       default: {

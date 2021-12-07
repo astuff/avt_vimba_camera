@@ -35,12 +35,9 @@
 
 #include <VimbaCPP/Include/VimbaCPP.h>
 
-// #include <avt_vimba_camera/AvtVimbaCameraConfig.h>
 #include "avt_vimba_camera/frame_observer.h"
 #include "avt_vimba_camera/avt_vimba_api.h"
 
-// #include <rclcpp/rclcpp.hpp>
-// #include <rclcpp/node_interfaces/node_parameters_interface.hpp>
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <diagnostic_updater/publisher.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -79,14 +76,14 @@ enum CameraState
   OK
 };
 
+const std::string PARAM_NAMESPACE = "feature/";
+
 class AvtVimbaCamera
 {
 public:
   typedef std::function<void(const FramePtr)> frameCallbackFunc;
 
   AvtVimbaCamera(rclcpp::Node* owner_node);
-  // AvtVimbaCamera(const std::string& name);
-
   void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id, const std::string& camera_info_url);
   void stop();
   void initConfig();
@@ -139,7 +136,6 @@ private:
   bool streaming_;
   bool on_init_;
   bool on_init_config_;
-  std::string name_;
   std::string guid_;
   std::string frame_id_;
   std::map<std::string, bool> writable_features_;
