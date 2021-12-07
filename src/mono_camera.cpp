@@ -58,7 +58,7 @@ MonoCameraNode::MonoCameraNode() : Node("mono_camera"), api_(this->get_logger())
   loadParams();
 
   // TODO: move this into the camera file, so that only camera-related params are configured
-  param_sub_ = this->add_on_set_parameters_callback(std::bind(&MonoCameraNode::parameterCallback, this, std::placeholders::_1));
+  // param_sub_ = this->add_on_set_parameters_callback(std::bind(&MonoCameraNode::parameterCallback, this, std::placeholders::_1));
 
   // next set avt params, so the callback is triggered?
 
@@ -68,8 +68,8 @@ MonoCameraNode::MonoCameraNode() : Node("mono_camera"), api_(this->get_logger())
   // Set camera info manager
   // info_man_ = std::shared_ptr<camera_info_manager::CameraInfoManager>(
   //     new camera_info_manager::CameraInfoManager(nhp_, frame_id_, camera_info_url_));
-  info_man_ = std::shared_ptr<camera_info_manager::CameraInfoManager>(
-      new camera_info_manager::CameraInfoManager(this, frame_id_, camera_info_url_));
+  // info_man_ = std::shared_ptr<camera_info_manager::CameraInfoManager>(
+  //     new camera_info_manager::CameraInfoManager(this, frame_id_, camera_info_url_));
 
   // Start dynamic_reconfigure & run configure()
   // reconfigure_server_.setCallback(
@@ -78,18 +78,16 @@ MonoCameraNode::MonoCameraNode() : Node("mono_camera"), api_(this->get_logger())
   // Configure camera
 
 
-  cam_.start(ip_, guid_, frame_id_, print_all_features_);
-  cam_.initConfig(this);
-  updateCameraInfo();
-  cam_.startImaging();
+  cam_.start(ip_, guid_, frame_id_, camera_info_url_);
+  cam_.initConfig();
+  // updateCameraInfo();
 
-  RCLCPP_INFO(this->get_logger(), "Done Construct");
+  cam_.startImaging();
 }
 
 MonoCameraNode::~MonoCameraNode(void)
 {
   cam_.stop();
-  // pub_.shutdown();
   camera_info_pub_.shutdown();
 }
 
@@ -99,20 +97,10 @@ void MonoCameraNode::loadParams()
   guid_ = this->declare_parameter("guid", "");
   camera_info_url_ = this->declare_parameter("camera_info_url", "");
   frame_id_ = this->declare_parameter("frame_id", "");
-  print_all_features_ = this->declare_parameter("print_all_features", false);
   use_measurement_time_ = this->declare_parameter("use_measurement_time", false);
   ptp_offset_ = this->declare_parameter("ptp_offset", 0);
 
-  // nhp_.param("ip", ip_, std::string(""));
-  // nhp_.param("guid", guid_, std::string(""));
-  // nhp_.param("camera_info_url", camera_info_url_, std::string(""));
-  // nhp_.param("frame_id", frame_id_, std::string(""));
-  // nhp_.param("print_all_features", print_all_features_, false);
-  // nhp_.param("use_measurement_time", use_measurement_time_, false);
-  // nhp_.param("ptp_offset", ptp_offset_, 0);
-
-  RCLCPP_INFO(this->get_logger(), "PARAMS Loaded");
-
+  RCLCPP_INFO(this->get_logger(), "Parameters loaded");
 }
 
 void MonoCameraNode::frameCallback(const FramePtr& vimba_frame_ptr)
@@ -125,11 +113,12 @@ void MonoCameraNode::frameCallback(const FramePtr& vimba_frame_ptr)
   // if (pub_.getNumSubscribers() > 0)
   // if (camera_info_pub_.getNumSubscribers() > 0)
   // {
-    RCLCPP_INFO(this->get_logger(), "subs");
+    // RCLCPP_INFO(this->get_logger(), "subs");
     sensor_msgs::msg::Image img;
     if (api_.frameToImage(vimba_frame_ptr, img))
     {
-      sensor_msgs::msg::CameraInfo ci = info_man_->getCameraInfo();
+      // sensor_msgs::msg::CameraInfo ci = info_man_->getCameraInfo();
+      sensor_msgs::msg::CameraInfo ci = cam_.getCameraInfo();
       if (use_measurement_time_)
       {
         VmbUint64_t frame_timestamp;
@@ -155,23 +144,11 @@ void MonoCameraNode::frameCallback(const FramePtr& vimba_frame_ptr)
   // }
 }
 
-rcl_interfaces::msg::SetParametersResult MonoCameraNode::parameterCallback (
-  const std::vector<rclcpp::Parameter> &parameters)
-{
-  // std::cout << "PARAMMMM" << parameters.size() << std::endl;
-  // RCLCPP_INFO(this->get_logger(), "PARAM_NO: %d", parameters.size());
-  rcl_interfaces::msg::SetParametersResult result;
-  result.successful = true;
-  result.reason = "success";
+// rcl_interfaces::msg::SetParametersResult MonoCameraNode::parameterCallback (
+//   const std::vector<rclcpp::Parameter> &parameters)
+// {
 
-  for (const auto &param : parameters)
-  {
-    RCLCPP_INFO(this->get_logger(), "PARAM_SET: %s", param.get_name().c_str());
-  }
-
-  // RCLCPP_INFO(this->get_logger(), "PARAM_SET");
-  return result;
-}
+// }
 
 /** Dynamic reconfigure callback
  *
@@ -241,40 +218,40 @@ rcl_interfaces::msg::SetParametersResult MonoCameraNode::parameterCallback (
 
 
 
-void MonoCameraNode::updateCameraInfo()
-{
-  sensor_msgs::msg::CameraInfo ci = info_man_->getCameraInfo();
+// void MonoCameraNode::updateCameraInfo()
+// {
+//   sensor_msgs::msg::CameraInfo ci = info_man_->getCameraInfo();
 
-  // Set the operational parameters in CameraInfo (binning, ROI)
-  int binning_or_decimation_x = 1;
-  int binning_or_decimation_y = 1;
+//   // Set the operational parameters in CameraInfo (binning, ROI)
+//   int binning_or_decimation_x = 1;
+//   int binning_or_decimation_y = 1;
 
-  // Set the operational parameters in CameraInfo (binning, ROI)
-  int sensor_width = cam_.getSensorWidth();
-  int sensor_height = cam_.getSensorHeight();
+//   // Set the operational parameters in CameraInfo (binning, ROI)
+//   int sensor_width = cam_.getSensorWidth();
+//   int sensor_height = cam_.getSensorHeight();
 
-  if (sensor_width == -1 || sensor_height == -1)
-  {
-    RCLCPP_ERROR(this->get_logger(), "Could not determine sensor pixel dimensions, camera_info will be wrong");
-  }
+//   if (sensor_width == -1 || sensor_height == -1)
+//   {
+//     RCLCPP_ERROR(this->get_logger(), "Could not determine sensor pixel dimensions, camera_info will be wrong");
+//   }
 
-  ci.width = sensor_width;
-  ci.height = sensor_height;
-  ci.binning_x = binning_or_decimation_x;
-  ci.binning_y = binning_or_decimation_y;
+//   ci.width = sensor_width;
+//   ci.height = sensor_height;
+//   ci.binning_x = binning_or_decimation_x;
+//   ci.binning_y = binning_or_decimation_y;
 
-  // ROI is in unbinned coordinates, need to scale up
-  ci.roi.width = 100 * binning_or_decimation_x;
-  ci.roi.height = 100 * binning_or_decimation_y;
-  ci.roi.x_offset = 0 * binning_or_decimation_x;
-  ci.roi.y_offset = 0 * binning_or_decimation_y;
+//   // ROI is in unbinned coordinates, need to scale up
+//   ci.roi.width = 100 * binning_or_decimation_x;
+//   ci.roi.height = 100 * binning_or_decimation_y;
+//   ci.roi.x_offset = 0 * binning_or_decimation_x;
+//   ci.roi.y_offset = 0 * binning_or_decimation_y;
 
-  bool roi_is_full_image = (ci.roi.width == ci.width && ci.roi.height == ci.height);
-  ci.roi.do_rectify = !roi_is_full_image;
+//   bool roi_is_full_image = (ci.roi.width == ci.width && ci.roi.height == ci.height);
+//   ci.roi.do_rectify = !roi_is_full_image;
 
-  // push the changes to manager
-  info_man_->setCameraInfo(ci);
-}
+//   // push the changes to manager
+//   info_man_->setCameraInfo(ci);
+// }
 
 
 }  // namespace avt_vimba_camera

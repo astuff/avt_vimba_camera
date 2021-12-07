@@ -66,7 +66,6 @@ private:
   std::string guid_;
   std::string camera_info_url_;
   std::string frame_id_;
-  bool print_all_features_;
   bool use_measurement_time_;
   int32_t ptp_offset_;
 
@@ -74,7 +73,7 @@ private:
   image_transport::CameraPublisher camera_info_pub_;
   // image_transport::CameraPublisher pub_;
 
-  OnSetParametersCallbackHandle::SharedPtr param_sub_;
+  // OnSetParametersCallbackHandle::SharedPtr param_sub_;
 
   std::shared_ptr<camera_info_manager::CameraInfoManager> info_man_;
 
@@ -90,11 +89,11 @@ private:
 
   void frameCallback(const FramePtr& vimba_frame_ptr);
 
-  rcl_interfaces::msg::SetParametersResult parameterCallback(const std::vector<rclcpp::Parameter> &parameters);
+  // rcl_interfaces::msg::SetParametersResult parameterCallback(const std::vector<rclcpp::Parameter> &parameters);
 
   // void configure(Config& newconfig, uint32_t level);
   // void updateCameraInfo(const Config& config);
-  void updateCameraInfo();
+  // void updateCameraInfo();
 };
 }  // namespace avt_vimba_camera
 #endif

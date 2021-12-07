@@ -36,11 +36,15 @@
 #include <VimbaCPP/Include/VimbaCPP.h>
 
 // #include <avt_vimba_camera/AvtVimbaCameraConfig.h>
-#include <avt_vimba_camera/frame_observer.h>
-#include <avt_vimba_camera/avt_vimba_api.h>
+#include "avt_vimba_camera/frame_observer.h"
+#include "avt_vimba_camera/avt_vimba_api.h"
 
+// #include <rclcpp/rclcpp.hpp>
+// #include <rclcpp/node_interfaces/node_parameters_interface.hpp>
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <diagnostic_updater/publisher.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
+#include <camera_info_manager/camera_info_manager.hpp>
 
 #include <string>
 #include <mutex>
@@ -78,19 +82,14 @@ enum CameraState
 class AvtVimbaCamera
 {
 public:
-  // typedef avt_vimba_camera::AvtVimbaCameraConfig Config;
   typedef std::function<void(const FramePtr)> frameCallbackFunc;
 
-  // AvtVimbaCamera();
   AvtVimbaCamera(rclcpp::Node* owner_node);
   // AvtVimbaCamera(const std::string& name);
 
-  void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id,
-             bool print_all_features = false);
+  void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id, const std::string& camera_info_url);
   void stop();
-
-  void initConfig(rclcpp::Node* nh);
-  // void updateConfig(Config& config);
+  void initConfig();
   void startImaging();
   void stopImaging();
 
@@ -104,8 +103,13 @@ public:
   // Getters
   double getTimestamp();
   double getDeviceTemp();
+  int getImageWidth();
+  int getImageHeight();
   int getSensorWidth();
   int getSensorHeight();
+  int getBinningOrDecimationX();
+  int getBinningOrDecimationY();
+  sensor_msgs::msg::CameraInfo getCameraInfo();
 
   // Setters
   void setCallback(frameCallbackFunc callback)
@@ -114,11 +118,10 @@ public:
   }
 
 private:
-  // Config config_;
-
-  rclcpp::Logger logger_;
+  rclcpp::Node::SharedPtr nh_;
   rclcpp::Clock clock_;
   AvtVimbaApi api_;
+
   // IFrame Observer
   SP_DECL(FrameObserver) frame_obs_ptr_;
   // The currently streaming camera
@@ -135,15 +138,19 @@ private:
   bool opened_;
   bool streaming_;
   bool on_init_;
+  bool on_init_config_;
   std::string name_;
   std::string guid_;
   std::string frame_id_;
   std::map<std::string, bool> writable_features_;
+  std::set<std::string> cam_info_features_;
 
+  std::shared_ptr<camera_info_manager::CameraInfoManager> info_man_;
   diagnostic_updater::Updater updater_;
   std::string diagnostic_msg_;
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_sub_;
 
-  CameraPtr openCamera(const std::string& id_str, bool print_all_features);
+  CameraPtr openCamera(const std::string& id_str);
 
   frameCallbackFunc userFrameCallback;
   void frameCallback(const FramePtr vimba_frame_ptr);
@@ -159,20 +166,10 @@ private:
 
   bool runCommand(const std::string& command_str);
   int getTriggerModeInt(std::string mode_str);
-  void printAllCameraFeatures(const CameraPtr& camera);
 
-  // void updateAcquisitionConfig(Config& config);
-  // void updateExposureConfig(Config& config);
-  // void updateGainConfig(Config& config);
-  // void updateWhiteBalanceConfig(Config& config);
-  // void updateImageModeConfig(Config& config);
-  // void updateROIConfig(Config& config);
-  // void updateBandwidthConfig(Config& config);
-  // void updatePixelFormatConfig(Config& config);
-  // void updatePtpModeConfig(Config& config);
-  // void updateGPIOConfig(Config& config);
-  // void updateIrisConfig(Config& config);
-
+  bool createParamFromFeature(const FeaturePtr feature, std::string& feature_name, bool& is_writable);
+  rcl_interfaces::msg::SetParametersResult parameterCallback(const std::vector<rclcpp::Parameter> &parameters);
+  void updateCameraInfo();
   void getCurrentState(diagnostic_updater::DiagnosticStatusWrapper& stat);
 };
 }  // namespace avt_vimba_camera

@@ -259,6 +259,7 @@ install(FILES README.md
 
 install(DIRECTORY
   launch
+  config
   calibrations
   DESTINATION share/${PROJECT_NAME}/
 )
