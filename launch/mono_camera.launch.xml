@@ -2,9 +2,9 @@
 <launch>
   <!-- Driver parameters, these parameters affect the way the ROS driver works -->
   <arg name="name" default="camera" doc="The name of the camera"/>
+  <arg name="frame_id" default="$(var name)" doc="The frame id of the camera"/>
   <arg name="ip" default="" doc="The IP for the camera to connect to"/>
   <arg name="guid" default="" doc="The GUID for the camera to connect to"/>
-  <arg name="frame_id" default="$(var name)" doc="The frame id of the camera"/>
   <arg name="use_measurement_time" default="false" doc="Use the measurement time from the camera"/>
   <arg name="ptp_offset" default="-37" doc="Offset to add to the timestamp from the camera (s).
     Useful for converting from TAI to UTC time. Only applies if use_measurement_time is true"/>
@@ -17,13 +17,17 @@
 
   <node pkg="avt_vimba_camera" exec="mono_camera_exec" name="$(var name)" output="screen">
     <param name="name" value="$(var name)"/>
+    <param name="frame_id" value="$(var frame_id)"/>
     <param name="ip" value="$(var ip)"/>
     <param name="guid" value="$(var guid)"/>
-    <param name="frame_id" value="$(var frame_id)"/>
     <param name="use_measurement_time" value="$(var use_measurement_time)"/>
     <param name="ptp_offset" value="$(var ptp_offset)"/>
     <param name="camera_info_url" value="$(var camera_info_url)"/>
 
     <param from="$(var params_file)"/>
   </node>
+
+  <group if="$(var image_proc)">
+    <node pkg="image_proc" exec="image_proc" name="image_proc" namespace="$(var name)"/>
+  </group>
 </launch>
