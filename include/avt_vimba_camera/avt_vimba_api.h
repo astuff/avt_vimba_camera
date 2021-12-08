@@ -36,9 +36,6 @@
 #include <VimbaCPP/Include/VimbaCPP.h>
 
 #include <rclcpp/rclcpp.hpp>
-// #include <sensor_msgs/Image.h>
-// #include <sensor_msgs/image_encodings.h>
-// #include <sensor_msgs/fill_image.h>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/fill_image.hpp>

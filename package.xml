@@ -20,22 +20,15 @@
 
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
-
   <depend>camera_info_manager</depend>
   <depend>diagnostic_updater</depend>
   <depend>diagnostic_msgs</depend>
-  <!-- <depend>dynamic_reconfigure</depend> -->
   <depend>image_transport</depend>
   <depend>message_filters</depend>
-
-
 
   <exec_depend>image_proc</exec_depend>
   <exec_depend>stereo_image_proc</exec_depend>
 
   <export><build_type>ament_cmake</build_type></export>
 
-  <!-- <export>
-    <nodelet plugin="${prefix}/plugins.xml" />
-  </export> -->
 </package>

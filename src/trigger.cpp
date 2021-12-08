@@ -39,12 +39,12 @@ TriggerNode::~TriggerNode()
 
 void TriggerNode::LoadParams()
 {
-  std::string destination_ip = this->declare_parameter("destination_ip", "");
-  trigger_src_ = this->declare_parameter("trigger_src", "timer");
-  timer_period_ = this->declare_parameter("timer_period", 0.1);
-  action_device_key_ = this->declare_parameter("action_device_key", 1);
-  action_group_key_ = this->declare_parameter("action_group_key", 1);
-  action_group_mask_ = this->declare_parameter("action_group_mask", 1);
+  std::string destination_ip = this->declare_parameter<std::string>("destination_ip", "");
+  trigger_src_ = this->declare_parameter<std::string>("trigger_src", "timer");
+  timer_period_ = this->declare_parameter<double>("timer_period", 0.1);
+  action_device_key_ = this->declare_parameter<int64_t>("action_device_key", 1);
+  action_group_key_ = this->declare_parameter<int64_t>("action_group_key", 1);
+  action_group_mask_ = this->declare_parameter<int64_t>("action_group_mask", 1);
 
   if (inet_aton(destination_ip.c_str(), &destination_ip_) == 0)
   {
