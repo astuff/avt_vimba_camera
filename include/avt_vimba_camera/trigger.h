@@ -5,17 +5,17 @@
 
 #include <arpa/inet.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <std_msgs/Bool.h>
+#include <std_msgs/msg/bool.hpp>
 
 namespace trigger
 {
-class Trigger
+class TriggerNode : public rclcpp::Node
 {
 public:
-  Trigger();
-  ~Trigger();
+  TriggerNode();
+  ~TriggerNode();
 
   void Init();
 
@@ -25,18 +25,21 @@ private:
   bool PrepareActionCommand();
   bool SetIntFeatureValue(const std::string& name, int64_t value);
 
-  void TimerCb(const ros::TimerEvent& event);
-  void TriggerCb(const std_msgs::Bool::ConstPtr& msg);
+  void TimerCb();
+  void TriggerCb(const std_msgs::msg::Bool::SharedPtr msg);
   void SendActionCommand();
 
   AVT::VmbAPI::VimbaSystem& vimba_system_;
   AVT::VmbAPI::InterfacePtr interface_ptr_;
+  rclcpp::Clock clock_;
 
-  ros::NodeHandle pnh_;
-  ros::NodeHandle nh_;
+  // ros::NodeHandle pnh_;
+  // ros::NodeHandle nh_;
 
-  ros::Timer trigger_timer_;
-  ros::Subscriber trigger_sub_;
+  // ros::Timer trigger_timer_;
+  rclcpp::TimerBase::SharedPtr trigger_timer_;
+  // ros::Subscriber trigger_sub_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr trigger_sub_;
 
   // Params
   struct in_addr destination_ip_;

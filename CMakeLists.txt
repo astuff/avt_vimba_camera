@@ -105,29 +105,17 @@ function(add_dependencies_and_linkings arg)
 endfunction(add_dependencies_and_linkings)
 
 
-# Nodes
+# --- Nodes
 
-# ament_auto_add_library(mono_camera_node SHARED
-#   # src/nodes/mono_camera_node.cpp
-#   src/mono_camera.cpp
-#   src/avt_vimba_camera.cpp
-#   src/frame_observer.cpp
-# )
-
-# ament_auto_add_library(mono_camera_node SHARED
+# Mono Camera
 add_library(mono_camera_node SHARED
-  # src/nodes/mono_camera_node.cpp
   src/mono_camera.cpp
   src/avt_vimba_camera.cpp
   src/frame_observer.cpp
 )
-
 ament_target_dependencies(mono_camera_node
   "rclcpp"
   "rclcpp_components"
-  # "rclcpp_lifecycle"
-  # "can_msgs"
-  # "pacmod3_msgs"
   "image_transport"
   "camera_info_manager"
   "diagnostic_updater"
@@ -140,6 +128,25 @@ rclcpp_components_register_nodes(
   "avt_vimba_camera::MonoCameraNode"
 )
 add_dependencies_and_linkings(mono_camera_node)
+
+# Trigger
+add_library(trigger_node SHARED
+  src/trigger.cpp
+)
+ament_target_dependencies(trigger_node
+  "rclcpp"
+  "rclcpp_components"
+  "std_msgs"
+)
+rclcpp_components_register_nodes(
+  trigger_node
+  "avt_vimba_camera::TriggerNode"
+)
+add_dependencies_and_linkings(trigger_node)
+
+
+
+
 
 # add_library(
 #   ${PROJECT_NAME}_node SHARED
@@ -168,12 +175,13 @@ add_dependencies_and_linkings(mono_camera_node)
 
 
 
-# Executables
+# --- Executables
 
 # ament_auto_add_executable(mono_camera_exec
 #   src/nodes/mono_camera_node.cpp
 # )
 
+# Mono Camera
 add_executable(
   mono_camera_exec
   src/nodes/mono_camera_node.cpp
@@ -181,7 +189,6 @@ add_executable(
 ament_target_dependencies(
   mono_camera_exec
   "rclcpp"
-  # "lifecycle_msgs"
 )
 target_link_libraries(
   mono_camera_exec
@@ -189,7 +196,20 @@ target_link_libraries(
 )
 add_dependencies_and_linkings(mono_camera_exec)
 
-
+# Trigger
+add_executable(
+  trigger_exec
+  src/nodes/trigger_node.cpp
+)
+ament_target_dependencies(
+  mono_camera_exec
+  "rclcpp"
+)
+target_link_libraries(
+  trigger_exec
+  trigger_node
+)
+add_dependencies_and_linkings(trigger_exec)
 
 
 
@@ -264,23 +284,20 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
-install(
-  TARGETS mono_camera_node
+install(TARGETS
+  mono_camera_node
+  trigger_node
   EXPORT export_${PROJECT_NAME}_node
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
 
-install(
-  TARGETS mono_camera_exec
+install(TARGETS
+  mono_camera_exec
+  trigger_exec
   DESTINATION lib/${PROJECT_NAME}/
 )
-
-
-
-
-
 
 
 
@@ -291,9 +308,6 @@ install(
 # )
 
 ament_package()
-
-
-
 
 
 

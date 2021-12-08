@@ -2,23 +2,16 @@
 
 namespace trigger
 {
-Trigger::Trigger() : vimba_system_(AVT::VmbAPI::VimbaSystem::GetInstance()), pnh_("~")
+TriggerNode::TriggerNode() : Node("trigger"), vimba_system_(AVT::VmbAPI::VimbaSystem::GetInstance())
 {
-}
+  clock_ = rclcpp::Clock(RCL_ROS_TIME);
 
-Trigger::~Trigger()
-{
-  vimba_system_.Shutdown();
-}
-
-void Trigger::Init()
-{
   VmbErrorType return_value = vimba_system_.Startup();
 
   if (return_value != VmbErrorSuccess)
   {
-    ROS_ERROR_STREAM("Failed to start Vimba system, vimba error code: " << return_value);
-    ros::shutdown();
+    RCLCPP_ERROR_STREAM(this->get_logger(), "Failed to start Vimba system, vimba error code: " << return_value);
+    rclcpp::shutdown();
   }
 
   LoadParams();
@@ -26,56 +19,58 @@ void Trigger::Init()
 
   if (trigger_src_ == "timer")
   {
-    trigger_timer_ = nh_.createTimer(ros::Duration(timer_period_), &Trigger::TimerCb, this);
+    trigger_timer_ = this->create_wall_timer(std::chrono::duration<float>(timer_period_), std::bind(&TriggerNode::TimerCb, this));
   }
   else if (trigger_src_ == "subscriber")
   {
-    trigger_sub_ = nh_.subscribe("trigger_input", 10, &Trigger::TriggerCb, this);
+    trigger_sub_ = this->create_subscription<std_msgs::msg::Bool>("trigger_input", 10, std::bind(&TriggerNode::TriggerCb, this, std::placeholders::_1));
   }
   else
   {
-    ROS_ERROR("Unknown trigger_src %s", trigger_src_.c_str());
-    ros::shutdown();
+    RCLCPP_ERROR(this->get_logger(), "Unknown trigger_src %s", trigger_src_.c_str());
+    rclcpp::shutdown();
   }
 }
 
-void Trigger::LoadParams()
+TriggerNode::~TriggerNode()
 {
-  std::string destination_ip;
-  pnh_.param<std::string>("destination_ip", destination_ip, "192.168.3.40");
-  pnh_.param<std::string>("trigger_src", trigger_src_, "timer");
-  pnh_.param<float>("timer_period", timer_period_, 0.1);
-  pnh_.param<int>("action_device_key", action_device_key_, 1);
-  pnh_.param<int>("action_group_key", action_group_key_, 1);
-  pnh_.param<int>("action_group_mask", action_group_mask_, 1);
+  vimba_system_.Shutdown();
+}
+
+void TriggerNode::LoadParams()
+{
+  std::string destination_ip = this->declare_parameter("destination_ip", "");
+  trigger_src_ = this->declare_parameter("trigger_src", "timer");
+  timer_period_ = this->declare_parameter("timer_period", 0.1);
+  action_device_key_ = this->declare_parameter("action_device_key", 1);
+  action_group_key_ = this->declare_parameter("action_group_key", 1);
+  action_group_mask_ = this->declare_parameter("action_group_mask", 1);
 
   if (inet_aton(destination_ip.c_str(), &destination_ip_) == 0)
   {
-    ROS_ERROR("Unable to parse desination_ip: %s", destination_ip.c_str());
-    ros::shutdown();
+    RCLCPP_ERROR(this->get_logger(), "Unable to parse desination_ip: %s", destination_ip.c_str());
+    rclcpp::shutdown();
   }
 }
 
-void Trigger::InitializeAddress()
+void TriggerNode::InitializeAddress()
 {
-  VmbErrorType return_value = VmbErrorSuccess;
-
   if (!SetIntFeatureValue("GevActionDestinationIPAddress", destination_ip_.s_addr))
   {
-    ROS_ERROR("Could not set destination address");
+    RCLCPP_ERROR(this->get_logger(), "Could not set destination address");
   }
 
-  ROS_INFO("Destination address set");
+  RCLCPP_INFO(this->get_logger(), "Destination address set");
 }
 
-bool Trigger::PrepareActionCommand()
+bool TriggerNode::PrepareActionCommand()
 {
   return (SetIntFeatureValue("ActionDeviceKey", 1) && SetIntFeatureValue("ActionGroupKey", 1) &&
           SetIntFeatureValue("ActionGroupMask", 1));
 }
 
 // Sets an integer feature value on the vimba system
-bool Trigger::SetIntFeatureValue(const std::string& name, int64_t value)
+bool TriggerNode::SetIntFeatureValue(const std::string& name, int64_t value)
 {
   VmbErrorType return_value = VmbErrorSuccess;
 
@@ -84,7 +79,7 @@ bool Trigger::SetIntFeatureValue(const std::string& name, int64_t value)
 
   if (return_value != VmbErrorSuccess)
   {
-    ROS_ERROR_STREAM("Failed to get feature, vimba error code: " << return_value);
+    RCLCPP_ERROR_STREAM(this->get_logger(), "Failed to get feature, vimba error code: " << return_value);
     return false;
   }
   else
@@ -95,21 +90,21 @@ bool Trigger::SetIntFeatureValue(const std::string& name, int64_t value)
   return (return_value == VmbErrorSuccess);
 }
 
-void Trigger::TimerCb(const ros::TimerEvent& event)
+void TriggerNode::TimerCb()
 {
   SendActionCommand();
 }
 
-void Trigger::TriggerCb(const std_msgs::Bool::ConstPtr& msg)
+void TriggerNode::TriggerCb(const std_msgs::msg::Bool::SharedPtr msg)
 {
   SendActionCommand();
 }
 
-void Trigger::SendActionCommand()
+void TriggerNode::SendActionCommand()
 {
   if (!PrepareActionCommand())
   {
-    ROS_ERROR_THROTTLE(1.0, "Failed to prepare action command");
+    RCLCPP_ERROR_THROTTLE(this->get_logger(), clock_, 1.0, "Failed to prepare action command");
     return;
   }
 
@@ -125,11 +120,11 @@ void Trigger::SendActionCommand()
 
   if (return_value == VmbErrorSuccess)
   {
-    ROS_DEBUG("Action command sent");
+    RCLCPP_DEBUG(this->get_logger(), "Action command sent");
   }
   else
   {
-    ROS_ERROR_THROTTLE(1.0, "Failed to send action command");
+    RCLCPP_ERROR_THROTTLE(this->get_logger(), clock_, 1.0, "Failed to send action command");
   }
 }
 
