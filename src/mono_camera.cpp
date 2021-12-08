@@ -36,8 +36,6 @@ namespace avt_vimba_camera
 {
 MonoCameraNode::MonoCameraNode() : Node("camera"), api_(this->get_logger()), cam_(this)
 {
-  RCLCPP_INFO(this->get_logger(), "Construct");
-
   // Start Vimba & list all available cameras
   api_.start();
 
@@ -49,9 +47,8 @@ MonoCameraNode::MonoCameraNode() : Node("camera"), api_(this->get_logger()), cam
 
   loadParams();
 
-  // Configure camera
+  // Start camera
   cam_.start(ip_, guid_, frame_id_, camera_info_url_);
-
   cam_.startImaging();
 }
 
