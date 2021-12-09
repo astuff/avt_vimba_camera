@@ -84,7 +84,8 @@ public:
   typedef std::function<void(const FramePtr)> frameCallbackFunc;
 
   AvtVimbaCamera(rclcpp::Node* owner_node);
-  void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id, const std::string& camera_info_url);
+  void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id,
+             const std::string& camera_info_url);
   void stop();
   void initConfig();
   void startImaging();
@@ -164,7 +165,7 @@ private:
   int getTriggerModeInt(std::string mode_str);
 
   bool createParamFromFeature(const FeaturePtr feature, std::string& feature_name, bool& is_writable);
-  rcl_interfaces::msg::SetParametersResult parameterCallback(const std::vector<rclcpp::Parameter> &parameters);
+  rcl_interfaces::msg::SetParametersResult parameterCallback(const std::vector<rclcpp::Parameter>& parameters);
   void updateCameraInfo();
   void getCurrentState(diagnostic_updater::DiagnosticStatusWrapper& stat);
 };

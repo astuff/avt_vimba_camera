@@ -233,8 +233,8 @@ public:
     }
     else
     {
-      RCLCPP_ERROR_STREAM(logger_,"Could not GetImage. "
-                           << "\n Error: " << errorCodeToMessage(err));
+      RCLCPP_ERROR_STREAM(logger_, "Could not GetImage. "
+                                       << "\n Error: " << errorCodeToMessage(err));
     }
     return res;
   }

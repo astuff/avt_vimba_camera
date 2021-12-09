@@ -19,11 +19,13 @@ TriggerNode::TriggerNode() : Node("trigger"), vimba_system_(AVT::VmbAPI::VimbaSy
 
   if (trigger_src_ == "timer")
   {
-    trigger_timer_ = this->create_wall_timer(std::chrono::duration<float>(timer_period_), std::bind(&TriggerNode::TimerCb, this));
+    trigger_timer_ =
+        this->create_wall_timer(std::chrono::duration<float>(timer_period_), std::bind(&TriggerNode::TimerCb, this));
   }
   else if (trigger_src_ == "subscriber")
   {
-    trigger_sub_ = this->create_subscription<std_msgs::msg::Bool>("trigger_input", 10, std::bind(&TriggerNode::TriggerCb, this, std::placeholders::_1));
+    trigger_sub_ = this->create_subscription<std_msgs::msg::Bool>(
+        "trigger_input", 10, std::bind(&TriggerNode::TriggerCb, this, std::placeholders::_1));
   }
   else
   {

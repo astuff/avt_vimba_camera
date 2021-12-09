@@ -41,13 +41,13 @@
 
 namespace avt_vimba_camera
 {
-
 static const char* TriggerMode[] = { "Freerun", "FixedRate", "Software", "Line1",  "Line2",
                                      "Line3",   "Line4",     "Action0",  "Action1" };
 
 static volatile int keepRunning = 1;
 
-AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node) : nh_(owner_node), api_(owner_node->get_logger()), updater_(owner_node)
+AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node)
+  : nh_(owner_node), api_(owner_node->get_logger()), updater_(owner_node)
 {
   clock_ = rclcpp::Clock(RCL_ROS_TIME);
   opened_ = false;     // camera connected to the api
@@ -68,7 +68,8 @@ AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node) : nh_(owner_node), api_
   updater_.add(owner_node->get_name(), this, &AvtVimbaCamera::getCurrentState);
 }
 
-void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id, const std::string& camera_info_url)
+void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id,
+                           const std::string& camera_info_url)
 {
   if (opened_)
     return;
@@ -186,7 +187,7 @@ void AvtVimbaCamera::startImaging()
     {
       diagnostic_msg_ = "Could not start continuous image acquisition. Error: " + api_.errorCodeToMessage(err);
       RCLCPP_ERROR_STREAM(nh_->get_logger(), "Could not start continuous image acquisition. "
-                       << "\n Error: " << api_.errorCodeToMessage(err));
+                                                 << "\n Error: " << api_.errorCodeToMessage(err));
       camera_state_ = ERROR;
     }
   }
@@ -213,7 +214,7 @@ void AvtVimbaCamera::stopImaging()
     {
       diagnostic_msg_ = "Could not stop image acquisition. Error: " + api_.errorCodeToMessage(err);
       RCLCPP_ERROR_STREAM(nh_->get_logger(), "Could not stop image acquisition."
-                       << "\n Error: " << api_.errorCodeToMessage(err));
+                                                 << "\n Error: " << api_.errorCodeToMessage(err));
       camera_state_ = ERROR;
     }
   }
@@ -240,13 +241,15 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
   {
     if (keepRunning)
     {
-      RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not find camera using " << id_str << ". Retrying every two seconds ...");
+      RCLCPP_WARN_STREAM(nh_->get_logger(),
+                         "Could not find camera using " << id_str << ". Retrying every two seconds ...");
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
       err = vimba_system.GetCameraByID(id_str.c_str(), camera);
     }
     else
     {
-      RCLCPP_ERROR_STREAM(nh_->get_logger(), "Could not find camera using " << id_str << "\n Error: " << api_.errorCodeToMessage(err));
+      RCLCPP_ERROR_STREAM(nh_->get_logger(),
+                          "Could not find camera using " << id_str << "\n Error: " << api_.errorCodeToMessage(err));
       camera_state_ = CAMERA_NOT_FOUND;
       return camera;
     }
@@ -264,7 +267,8 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
     }
     else
     {
-      RCLCPP_ERROR_STREAM(nh_->get_logger(), "Could not open camera " << id_str << "\n Error: " << api_.errorCodeToMessage(err));
+      RCLCPP_ERROR_STREAM(nh_->get_logger(),
+                          "Could not open camera " << id_str << "\n Error: " << api_.errorCodeToMessage(err));
       camera_state_ = CAMERA_NOT_FOUND;
       return camera;
     }
@@ -412,7 +416,7 @@ VmbErrorType AvtVimbaCamera::setFeatureValue(const std::string& feature_str, con
             else
             {
               RCLCPP_WARN_STREAM(nh_->get_logger(), "Feature " << feature_str << ": value unavailable\n\tERROR "
-                                         << api_.errorCodeToMessage(err));
+                                                               << api_.errorCodeToMessage(err));
             }
           }
           else
@@ -422,7 +426,8 @@ VmbErrorType AvtVimbaCamera::setFeatureValue(const std::string& feature_str, con
         }
         else
         {
-          RCLCPP_WARN_STREAM(nh_->get_logger(), "Feature " << feature_str << ": Bad data type\n\tERROR " << api_.errorCodeToMessage(err));
+          RCLCPP_WARN_STREAM(nh_->get_logger(),
+                             "Feature " << feature_str << ": Bad data type\n\tERROR " << api_.errorCodeToMessage(err));
         }
       }
       else
@@ -437,7 +442,8 @@ VmbErrorType AvtVimbaCamera::setFeatureValue(const std::string& feature_str, con
   }
   else
   {
-    RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not get feature " << feature_str << ", your camera probably doesn't support it.");
+    RCLCPP_WARN_STREAM(nh_->get_logger(),
+                       "Could not get feature " << feature_str << ", your camera probably doesn't support it.");
   }
   return err;
 }
@@ -495,7 +501,8 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, T& val)
         }
         if (err != VmbErrorSuccess)
         {
-          RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not get feature value. Error code: " << api_.errorCodeToMessage(err));
+          RCLCPP_WARN_STREAM(nh_->get_logger(),
+                             "Could not get feature value. Error code: " << api_.errorCodeToMessage(err));
         }
       }
     }
@@ -554,7 +561,8 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, std::string
         }
         if (err != VmbErrorSuccess)
         {
-          RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not get feature value. Error code: " << api_.errorCodeToMessage(err));
+          RCLCPP_WARN_STREAM(nh_->get_logger(),
+                             "Could not get feature value. Error code: " << api_.errorCodeToMessage(err));
         }
       }
     }
@@ -587,8 +595,9 @@ void AvtVimbaCamera::configureFeature(const std::string& feature_str, const Vimb
     }
     else
     {
-      RCLCPP_WARN_STREAM(nh_->get_logger(), " - Tried to set " << feature_str << " to " << val_in << " but the camera used " << actual_value
-                                         << " instead");
+      RCLCPP_WARN_STREAM(nh_->get_logger(), " - Tried to set " << feature_str << " to " << val_in
+                                                               << " but the camera used " << actual_value
+                                                               << " instead");
       val_out = static_cast<Std_Type>(actual_value);
     }
   }
@@ -614,8 +623,9 @@ void AvtVimbaCamera::configureFeature(const std::string& feature_str, const std:
     }
     else
     {
-      RCLCPP_WARN_STREAM(nh_->get_logger(), " - Tried to set " << feature_str << " to " << val_in << " but the camera used " << actual_value
-                                         << " instead");
+      RCLCPP_WARN_STREAM(nh_->get_logger(), " - Tried to set " << feature_str << " to " << val_in
+                                                               << " but the camera used " << actual_value
+                                                               << " instead");
       val_out = actual_value;
     }
   }
@@ -644,20 +654,23 @@ bool AvtVimbaCamera::runCommand(const std::string& command_str)
         {
           break;
         }
-        RCLCPP_DEBUG_STREAM_THROTTLE(nh_->get_logger(), clock_, 1000, "Waiting for command " << command_str.c_str() << "...");
+        RCLCPP_DEBUG_STREAM_THROTTLE(nh_->get_logger(), clock_, 1000,
+                                     "Waiting for command " << command_str.c_str() << "...");
       } while (false == is_command_done);
       RCLCPP_DEBUG_STREAM(nh_->get_logger(), "Command " << command_str.c_str() << " done!");
       return true;
     }
     else
     {
-      RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not run command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
+      RCLCPP_WARN_STREAM(nh_->get_logger(),
+                         "Could not run command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
       return false;
     }
   }
   else
   {
-    RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not get feature command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
+    RCLCPP_WARN_STREAM(nh_->get_logger(),
+                       "Could not get feature command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
     return false;
   }
 }
@@ -707,7 +720,8 @@ int AvtVimbaCamera::getTriggerModeInt(std::string mode_str)
 void AvtVimbaCamera::initConfig()
 {
   // Add param callback to catch any changes to params during operation
-  param_sub_ = nh_->add_on_set_parameters_callback(std::bind(&AvtVimbaCamera::parameterCallback, this, std::placeholders::_1));
+  param_sub_ =
+      nh_->add_on_set_parameters_callback(std::bind(&AvtVimbaCamera::parameterCallback, this, std::placeholders::_1));
 
   if (!opened_)
   {
@@ -742,7 +756,9 @@ void AvtVimbaCamera::initConfig()
   }
   updateCameraInfo();
 
-  RCLCPP_INFO(nh_->get_logger(), "Found %d features on the camera, %u of which are writable. All features are exposed as ROS params", writable_features_.size(), writable_count);
+  RCLCPP_INFO(nh_->get_logger(),
+              "Found %d features on the camera, %u of which are writable. All features are exposed as ROS params",
+              writable_features_.size(), writable_count);
   on_init_config_ = false;
 }
 
@@ -852,7 +868,7 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
         nh_->declare_parameter<double>(PARAM_NAMESPACE + feature_name, initial_value, descriptor);
         break;
       }
-      case VmbFeatureDataString:{
+      case VmbFeatureDataString: {
         std::string initial_value = "";
 
         feature->GetValue(initial_value);
@@ -870,7 +886,8 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
         {
           std::string enum_description = "Acceptable values: ";
           bool first = true;
-          for (const auto& entry : enum_entries) {
+          for (const auto& entry : enum_entries)
+          {
             std::string entry_name;
             if (entry.GetName(entry_name) == VmbErrorSuccess)
             {
@@ -893,13 +910,14 @@ bool AvtVimbaCamera::createParamFromFeature(const FeaturePtr feature, std::strin
   return true;
 }
 
-rcl_interfaces::msg::SetParametersResult AvtVimbaCamera::parameterCallback(const std::vector<rclcpp::Parameter> &parameters)
+rcl_interfaces::msg::SetParametersResult
+AvtVimbaCamera::parameterCallback(const std::vector<rclcpp::Parameter>& parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";
 
-  for (const auto &param : parameters)
+  for (const auto& param : parameters)
   {
     std::string param_name = param.get_name();
     std::string feature_name = param_name.substr(param_name.find('/') + 1, std::string::npos);
