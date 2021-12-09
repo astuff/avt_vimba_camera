@@ -35,7 +35,7 @@
 #include <iostream>
 
 FrameObserver::FrameObserver(CameraPtr cam_ptr, Callback callback)
-  : IFrameObserver(cam_ptr), callback_(callback), cam_ptr_(cam_ptr)
+  : IFrameObserver(cam_ptr), cam_ptr_(cam_ptr), callback_(callback)
 {
 }
 

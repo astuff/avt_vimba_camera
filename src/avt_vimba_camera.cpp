@@ -47,11 +47,6 @@ static const char* TriggerMode[] = { "Freerun", "FixedRate", "Software", "Line1"
 
 static volatile int keepRunning = 1;
 
-void intHandler(int dummy)
-{
-  keepRunning = 0;
-}
-
 AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node) : nh_(owner_node), api_(owner_node->get_logger()), updater_(owner_node)
 {
   clock_ = rclcpp::Clock(RCL_ROS_TIME);
@@ -239,9 +234,6 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
   CameraPtr camera;
   VimbaSystem& vimba_system(VimbaSystem::GetInstance());
 
-  // set handler to catch ctrl+c presses
-  sighandler_t oldHandler = signal(SIGINT, intHandler);
-
   // get camera
   VmbErrorType err = vimba_system.GetCameraByID(id_str.c_str(), camera);
   while (err != VmbErrorSuccess)
@@ -249,7 +241,6 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
     if (keepRunning)
     {
       RCLCPP_WARN_STREAM(nh_->get_logger(), "Could not find camera using " << id_str << ". Retrying every two seconds ...");
-      // ros::Duration(2.0).sleep();
       std::this_thread::sleep_for(std::chrono::milliseconds(2000));
       err = vimba_system.GetCameraByID(id_str.c_str(), camera);
     }
@@ -278,9 +269,6 @@ CameraPtr AvtVimbaCamera::openCamera(const std::string& id_str)
       return camera;
     }
   }
-
-  // set previous handler back
-  signal(SIGINT, oldHandler);
 
   std::string cam_id, cam_name;
   camera->GetID(cam_id);
@@ -502,6 +490,8 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, T& val)
               val = static_cast<T>(nValue);
             }
             break;
+          default:
+            break;
         }
         if (err != VmbErrorSuccess)
         {
@@ -558,6 +548,8 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, std::string
             {
               val = strValue;
             }
+            break;
+          default:
             break;
         }
         if (err != VmbErrorSuccess)
@@ -949,6 +941,8 @@ rcl_interfaces::msg::SetParametersResult AvtVimbaCamera::parameterCallback(const
             configureFeature(feature_name, param.get_value<std::string>(), value);
             break;
           }
+          default:
+            break;
         }
 
         // Update camera_info if certain features changed

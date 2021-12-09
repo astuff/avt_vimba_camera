@@ -97,6 +97,7 @@ void TriggerNode::TimerCb()
 
 void TriggerNode::TriggerCb(const std_msgs::msg::Bool::SharedPtr msg)
 {
+  (void)msg;  // unused
   SendActionCommand();
 }
 
