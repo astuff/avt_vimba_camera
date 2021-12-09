@@ -18,7 +18,7 @@ commands:
           command: |
             source /opt/ros/*/setup.bash
             cd ~/ros2_ws
-            colcon build -j 2
+            export MAKEFLAGS="-j 2" colcon build
       - run:
           name: Run Tests
           command: |
