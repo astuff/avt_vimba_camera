@@ -86,12 +86,6 @@ add_executable(mono_camera_node
 )
 add_dependencies_and_linkings(mono_camera_node)
 
-add_executable(sync_node
-  src/nodes/sync_node.cpp
-  src/sync.cpp
-)
-add_dependencies_and_linkings(sync_node)
-
 add_executable(trigger_node
   src/nodes/trigger_node.cpp
   src/trigger.cpp
@@ -114,7 +108,6 @@ add_dependencies_and_linkings(avt_camera_nodelets)
 ## Mark executables and/or libraries for installation
 install(TARGETS
   mono_camera_node
-  sync_node
   trigger_node
   avt_camera_nodelets
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
