@@ -18,7 +18,8 @@ commands:
           command: |
             source /opt/ros/*/setup.bash
             cd ~/ros2_ws
-            export MAKEFLAGS="-j 2" colcon build
+            export MAKEFLAGS="-j 2"
+            colcon build
       - run:
           name: Run Tests
           command: |
@@ -32,7 +33,6 @@ jobs:
       - image: autonomoustuff/docker-builds:foxy-ros-base
     steps:
       - ros_build
-    working_directory: ~/$CIRCLE_PROJECT_REPONAME
 
 workflows:
   ros_build:
