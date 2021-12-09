@@ -1,4 +1,4 @@
-#include "avt_vimba_camera/trigger.h"
+#include "avt_vimba_camera/trigger_node.hpp"
 
 namespace trigger
 {

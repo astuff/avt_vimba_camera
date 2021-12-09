@@ -49,24 +49,24 @@ endfunction(add_dependencies_and_linkings)
 
 # Nodes
 ament_auto_add_library(mono_camera_node SHARED
-  src/mono_camera.cpp
+  src/mono_camera_node.cpp
   src/avt_vimba_camera.cpp
   src/frame_observer.cpp
 )
 add_dependencies_and_linkings(mono_camera_node)
 
 ament_auto_add_library(trigger_node SHARED
-  src/trigger.cpp
+  src/trigger_node.cpp
 )
 add_dependencies_and_linkings(trigger_node)
 
 # Executables
 ament_auto_add_executable(mono_camera_exec
-  src/nodes/mono_camera_node.cpp
+  src/exec/mono_camera_exec.cpp
 )
 
 ament_auto_add_executable(trigger_exec
-  src/nodes/trigger_node.cpp
+  src/exec/trigger_exec.cpp
 )
 
 #############

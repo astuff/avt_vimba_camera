@@ -30,8 +30,8 @@
 /// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 /// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "avt_vimba_camera/avt_vimba_camera.h"
-#include "avt_vimba_camera/avt_vimba_api.h"
+#include "avt_vimba_camera/avt_vimba_camera.hpp"
+#include "avt_vimba_camera/avt_vimba_api.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>

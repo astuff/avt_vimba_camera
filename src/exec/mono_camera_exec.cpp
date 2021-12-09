@@ -1,4 +1,4 @@
-#include "avt_vimba_camera/mono_camera.h"
+#include "avt_vimba_camera/mono_camera_node.hpp"
 
 #include <memory>
 

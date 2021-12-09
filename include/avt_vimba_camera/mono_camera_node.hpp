@@ -33,8 +33,8 @@
 #ifndef MONO_CAMERA_H
 #define MONO_CAMERA_H
 
-#include "avt_vimba_camera/avt_vimba_camera.h"
-#include "avt_vimba_camera/avt_vimba_api.h"
+#include "avt_vimba_camera/avt_vimba_camera.hpp"
+#include "avt_vimba_camera/avt_vimba_api.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>

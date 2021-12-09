@@ -1,7 +1,7 @@
 #ifndef AVT_VIMBA_CAMERA_TRIGGER_H
 #define AVT_VIMBA_CAMERA_TRIGGER_H
 
-#include "VimbaCPP/Include/VimbaCPP.h"
+#include <VimbaCPP/Include/VimbaCPP.h>
 
 #include <arpa/inet.h>
 

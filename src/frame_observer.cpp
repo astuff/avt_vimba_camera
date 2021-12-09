@@ -30,7 +30,8 @@
 /// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 /// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <avt_vimba_camera/frame_observer.h>
+#include "avt_vimba_camera/frame_observer.hpp"
+
 #include <iostream>
 
 FrameObserver::FrameObserver(CameraPtr cam_ptr, Callback callback)

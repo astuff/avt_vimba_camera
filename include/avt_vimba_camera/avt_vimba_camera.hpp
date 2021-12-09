@@ -35,8 +35,8 @@
 
 #include <VimbaCPP/Include/VimbaCPP.h>
 
-#include "avt_vimba_camera/frame_observer.h"
-#include "avt_vimba_camera/avt_vimba_api.h"
+#include "avt_vimba_camera/frame_observer.hpp"
+#include "avt_vimba_camera/avt_vimba_api.hpp"
 
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <diagnostic_updater/publisher.hpp>

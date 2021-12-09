@@ -30,7 +30,7 @@
 /// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 /// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "avt_vimba_camera/mono_camera.h"
+#include "avt_vimba_camera/mono_camera_node.hpp"
 
 namespace avt_vimba_camera
 {
