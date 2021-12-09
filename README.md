@@ -1,7 +1,9 @@
-# avt_vimba_camera
+# avt_vimba_camera (ROS1)
 
 This repo contains a ROS driver for cameras manufactured by [Allied Vision Technologies](https://www.alliedvision.com).
 The driver relies on libraries provided by AVT as part of their [Vimba SDK](https://www.alliedvision.com/en/products/software.html).
+
+*See the ROS2 version of this README [here](https://github.com/astuff/avt_vimba_camera/blob/ros2_master/README.md).*
 
 ## Installation
 
