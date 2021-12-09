@@ -51,6 +51,7 @@ class MonoCameraNode : public rclcpp::Node
 public:
   MonoCameraNode();
   ~MonoCameraNode();
+  void start();
 
 private:
   AvtVimbaApi api_;

@@ -36,9 +36,6 @@ namespace avt_vimba_camera
 {
 MonoCameraNode::MonoCameraNode() : Node("camera"), api_(this->get_logger()), cam_(this)
 {
-  // Start Vimba & list all available cameras
-  api_.start();
-
   // Set the image publisher before streaming
   camera_info_pub_ = image_transport::create_camera_publisher(this, "~/image", rmw_qos_profile_system_default);
 
@@ -46,13 +43,9 @@ MonoCameraNode::MonoCameraNode() : Node("camera"), api_(this->get_logger()), cam
   cam_.setCallback(std::bind(&avt_vimba_camera::MonoCameraNode::frameCallback, this, std::placeholders::_1));
 
   loadParams();
-
-  // Start camera
-  cam_.start(ip_, guid_, frame_id_, camera_info_url_);
-  cam_.startImaging();
 }
 
-MonoCameraNode::~MonoCameraNode(void)
+MonoCameraNode::~MonoCameraNode()
 {
   cam_.stop();
   camera_info_pub_.shutdown();
@@ -68,6 +61,16 @@ void MonoCameraNode::loadParams()
   ptp_offset_ = this->declare_parameter("ptp_offset", 0);
 
   RCLCPP_INFO(this->get_logger(), "Parameters loaded");
+}
+
+void MonoCameraNode::start()
+{
+  // Start Vimba & list all available cameras
+  api_.start();
+
+  // Start camera
+  cam_.start(ip_, guid_, frame_id_, camera_info_url_);
+  cam_.startImaging();
 }
 
 void MonoCameraNode::frameCallback(const FramePtr& vimba_frame_ptr)
