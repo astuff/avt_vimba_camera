@@ -32,7 +32,7 @@ jobs:
       - image: autonomoustuff/docker-builds:foxy-ros-base
     steps:
       - ros_build
-    working_directory: ~/src
+    working_directory: ~/$CIRCLE_PROJECT_REPONAME
 
 workflows:
   ros_build:
