@@ -28,7 +28,7 @@ sudo apt install ros-$ROS_DISTRO-avt-vimba-camera
 
 ## Operational Advice
 
-### MTU Size
+### MTU Size (GigE Cameras)
 If you are using a GigE camera (ethernet-based camera), it is recommended to adjust some settings in your network interface to be able to handle the potentially high bandwidth usage of the camera stream.
 
 On Linux, you will need to increase the MTU (Maximum Transmission Unit) on the network interface attached to the camera.
@@ -44,7 +44,7 @@ If you use Network Manager, this can be done by opening the network interface se
 See the "Optimize system performance" section of your camera's technical manual for full details.
 For example, the Mako camera technical manual is available [here](https://cdn.alliedvision.com/fileadmin/content/documents/products/cameras/Mako/techman/Mako_TechMan_en.pdf).
 
-### Receive Buffer Size
+### Receive Buffer Size (GigE Cameras)
 
 It is also recommended to increase your network receive buffer size.
 By default, Ubuntu uses `212992`.
@@ -62,14 +62,22 @@ sudo sysctl -w 'net.core.rmem_max=26214400'
 
 ### Camera Settings in General
 
-If you are having difficulty getting the camera to do what you want using the ROS driver, it is suggested to first use Vimba Viewer to play around with settings that work. 
-The Vimba Viewer GUI will help you determine what settings are available to your camera model and help you tune them easier.
-Once you have settings that you are happy with, save them into your own rosparam file or launch file, and the driver will use those settings every time it launches.
+When the ROS2 driver starts up, it queries the camera for all features and creates ROS parameters for every feature on the camera.
+All camera-related ROS parameters are prefixed with "feature/" in their name to indicate they are camera features.
+Note that some features are read-only, and each camera model will have slightly different feature sets.
+If the user does not specify the ROS parameter for a given feature using yaml config files or launch files, then the value for that feature is untouched and not overridden by the driver.
 
-Note that this driver makes use of both ROS parameters and dynamic reconfigure.
-When the driver first starts, the dyanmic reconfigure server will initialize with all current ROS param values, then trigger a callback to configure the camera.
-This means ROS params will take precedence and should be the preferred way to save camera configs meant to be reused.
-After the driver initializes, changes to the parameters can be made using dynamic reconfigure RQT tool (rqt_reconfigure).
+This allows you to take two different approaches towards params/features with the ROS driver:
+1. Don't configure anything via ROS params and instead use the camera's "Saved User Sets" functionality to load a custom configuration every time it boots. 
+The ROS driver won't change anything (as long as no "feature/" ROS params are set) and just use the camera as it's configured.
+
+2. Use ROS params defined in a yaml file to configure the camera when the driver starts.
+Existing params can be saved using `ros2 param dump [node_name]` .
+
+Reagrdless of your approach, if you are having difficulty getting the camera configured, it is suggested to first use Vimba Viewer to play around with settings that work. 
+The Vimba Viewer GUI will help you determine what settings are available to your camera model and help you tune them easier.
+Once you have settings that you are happy with, save them into your own rosparam file or onto the camera using "Saved User Sets". 
+
 
 ## ROS Nodes
 
@@ -79,13 +87,6 @@ The mono_camera_node is the main driver that connects to the camera, configures 
 The driver uses [image_transport](http://wiki.ros.org/image_transport) to publish image frames, so all expected image topics should be available.
 See the config file (`cfg/AvtVimbaCamera.cfg`) for documentation regarding the various parameters that can be used to configure the camera itself.
 See the launch file (launch/mono_camera.launch) for documentation regarding the operational parameters of the driver.
-
-### sync_node
-
-The sync_node is a standalone node for synchronizing two ROS image topics using [message filter](http://wiki.ros.org/message_filters).
-This could be useful if you have a stereo camera setup, see the `stereo_camera.launch` file for an example of using two AVT cameras in a stereo setup.
-If you are using multiple cameras, it is highly recommended to sync their clocks using PTP or hardware sync. 
-See the "Clock Synchronization" section for more details.
 
 ### trigger_node
 
