@@ -82,13 +82,6 @@ The driver uses [image_transport](http://wiki.ros.org/image_transport) to publis
 See the config file (`cfg/AvtVimbaCamera.cfg`) for documentation regarding the various parameters that can be used to configure the camera itself.
 See the launch file (launch/mono_camera.launch) for documentation regarding the operational parameters of the driver.
 
-### sync_node
-
-The sync_node is a standalone node for synchronizing two ROS image topics using [message filter](http://wiki.ros.org/message_filters).
-This could be useful if you have a stereo camera setup, see the `stereo_camera.launch` file for an example of using two AVT cameras in a stereo setup.
-If you are using multiple cameras, it is highly recommended to sync their clocks using PTP or hardware sync. 
-See the "Clock Synchronization" section for more details.
-
 ### trigger_node
 
 The trigger_node is a standalone node for sending out ethernet-based action commands to AVT cameras. 
