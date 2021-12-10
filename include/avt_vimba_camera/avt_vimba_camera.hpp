@@ -53,18 +53,6 @@ using AVT::VmbAPI::VimbaSystem;
 
 namespace avt_vimba_camera
 {
-enum FrameStartTriggerMode
-{
-  Freerun,
-  FixedRate,
-  Software,
-  SyncIn1,
-  SyncIn2,
-  SyncIn3,
-  SyncIn4,
-  Action0,
-  Action1
-};
 
 enum CameraState
 {
@@ -160,10 +148,7 @@ private:
   template <typename Vimba_Type, typename Std_Type>
   void configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out);
   void configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out);
-
   bool runCommand(const std::string& command_str);
-  int getTriggerModeInt(std::string mode_str);
-
   bool createParamFromFeature(const FeaturePtr feature, std::string& feature_name, bool& is_writable);
   rcl_interfaces::msg::SetParametersResult parameterCallback(const std::vector<rclcpp::Parameter>& parameters);
   void updateCameraInfo();

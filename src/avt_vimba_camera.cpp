@@ -41,9 +41,6 @@
 
 namespace avt_vimba_camera
 {
-static const char* TriggerMode[] = { "Freerun", "FixedRate", "Software", "Line1",  "Line2",
-                                     "Line3",   "Line4",     "Action0",  "Action1" };
-
 static volatile int keepRunning = 1;
 
 AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node)
@@ -140,23 +137,13 @@ void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_st
 
   std::string trigger_source;
   getFeatureValue("TriggerSource", trigger_source);
-  int trigger_source_int = getTriggerModeInt(trigger_source);
 
-  if (trigger_source_int == Freerun || trigger_source_int == FixedRate || trigger_source_int == SyncIn1 ||
-      trigger_source_int == Action0 || trigger_source_int == Action1)
-  {
-    // Create a frame observer for this camera
-    SP_SET(frame_obs_ptr_,
-           new FrameObserver(vimba_camera_ptr_,
-                             std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
-    camera_state_ = IDLE;
-  }
-  else
-  {
-    diagnostic_msg_ = "Trigger mode " + std::string(TriggerMode[trigger_source_int]) + " not implemented.";
-    RCLCPP_ERROR_STREAM(nh_->get_logger(), "Trigger mode " << TriggerMode[trigger_source_int] << " not implemented.");
-    camera_state_ = ERROR;
-  }
+  SP_SET(frame_obs_ptr_,
+          new FrameObserver(vimba_camera_ptr_,
+                            std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
+  RCLCPP_INFO(nh_->get_logger(), "Ready to receive frames triggered by %s", trigger_source.c_str());
+  camera_state_ = IDLE;
+
   updater_.force_update();
 
   initConfig();
@@ -673,48 +660,6 @@ bool AvtVimbaCamera::runCommand(const std::string& command_str)
                        "Could not get feature command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
     return false;
   }
-}
-
-int AvtVimbaCamera::getTriggerModeInt(std::string mode_str)
-{
-  int mode;
-  if (mode_str == TriggerMode[Freerun])
-  {
-    mode = Freerun;
-  }
-  else if (mode_str == TriggerMode[FixedRate])
-  {
-    mode = FixedRate;
-  }
-  else if (mode_str == TriggerMode[Software])
-  {
-    mode = Software;
-  }
-  else if (mode_str == TriggerMode[SyncIn1])
-  {
-    mode = SyncIn1;
-  }
-  else if (mode_str == TriggerMode[SyncIn2])
-  {
-    mode = SyncIn2;
-  }
-  else if (mode_str == TriggerMode[SyncIn3])
-  {
-    mode = SyncIn3;
-  }
-  else if (mode_str == TriggerMode[SyncIn4])
-  {
-    mode = SyncIn4;
-  }
-  else if (mode_str == TriggerMode[Action0])
-  {
-    mode = Action0;
-  }
-  else if (mode_str == TriggerMode[Action1])
-  {
-    mode = Action1;
-  }
-  return mode;
 }
 
 void AvtVimbaCamera::initConfig()
