@@ -53,6 +53,8 @@ void TriggerNode::LoadParams()
     RCLCPP_ERROR(this->get_logger(), "Unable to parse desination_ip: %s", destination_ip.c_str());
     rclcpp::shutdown();
   }
+
+  RCLCPP_INFO(this->get_logger(), "Sending action commands to %s", destination_ip.c_str());
 }
 
 void TriggerNode::InitializeAddress()
@@ -61,8 +63,6 @@ void TriggerNode::InitializeAddress()
   {
     RCLCPP_ERROR(this->get_logger(), "Could not set destination address");
   }
-
-  RCLCPP_INFO(this->get_logger(), "Destination address set");
 }
 
 bool TriggerNode::PrepareActionCommand()
