@@ -2,6 +2,12 @@
 Changelog for package avt_vimba_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Port to ROS2 (`#56 <https://github.com/astuff/avt_vimba_camera/issues/56>`_)
+* Update README for ROS2 (`#58 <https://github.com/astuff/avt_vimba_camera/issues/58>`_)
+* Contributors: icolwell-as
+
 1.0.0 (2021-11-30)
 ------------------
 * Code Cleanup and Autoformat (`#52 <https://github.com/astuff/avt_vimba_camera/issues/52>`_)
