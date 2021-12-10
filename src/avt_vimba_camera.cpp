@@ -43,7 +43,7 @@ namespace avt_vimba_camera
 {
 static volatile int keepRunning = 1;
 
-AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node* owner_node)
+AvtVimbaCamera::AvtVimbaCamera(rclcpp::Node::SharedPtr owner_node)
   : nh_(owner_node), api_(owner_node->get_logger()), updater_(owner_node)
 {
   clock_ = rclcpp::Clock(RCL_ROS_TIME);

@@ -34,7 +34,7 @@
 
 namespace avt_vimba_camera
 {
-MonoCameraNode::MonoCameraNode() : Node("camera"), api_(this->get_logger()), cam_(this)
+MonoCameraNode::MonoCameraNode() : Node("camera"), api_(this->get_logger()), cam_(std::shared_ptr<rclcpp::Node>(dynamic_cast<rclcpp::Node * >(this)))
 {
   // Set the image publisher before streaming
   camera_info_pub_ = image_transport::create_camera_publisher(this, "~/image", rmw_qos_profile_system_default);

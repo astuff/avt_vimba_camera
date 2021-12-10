@@ -71,7 +71,8 @@ class AvtVimbaCamera
 public:
   typedef std::function<void(const FramePtr)> frameCallbackFunc;
 
-  AvtVimbaCamera(rclcpp::Node* owner_node);
+  // AvtVimbaCamera(rclcpp::Node* owner_node);
+  AvtVimbaCamera(rclcpp::Node::SharedPtr owner_node);
   void start(const std::string& ip_str, const std::string& guid_str, const std::string& frame_id,
              const std::string& camera_info_url);
   void stop();
