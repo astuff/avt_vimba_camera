@@ -1,4 +1,4 @@
-# Original copyright from upstream repo:
+# Original license from upstream repo:
 
 Copyright (c) 2014,
 Systems, Robotics and Vision Group
