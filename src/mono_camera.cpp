@@ -81,6 +81,8 @@ void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr)
     if (api_.frameToImage(vimba_frame_ptr, img))
     {
       sensor_msgs::CameraInfo ci = info_man_->getCameraInfo();
+      // Note: getCameraInfo() doesn't fill in header frame_id or stamp
+      ci.header.frame_id = frame_id_;
       if (use_measurement_time_)
       {
         VmbUint64_t frame_timestamp;
@@ -92,6 +94,7 @@ void MonoCamera::frameCallback(const FramePtr& vimba_frame_ptr)
         ci.header.stamp = ros_time;
       }
       img.header.frame_id = ci.header.frame_id;
+      img.header.stamp = ci.header.stamp;
       pub_.publish(img, ci);
     }
     else
