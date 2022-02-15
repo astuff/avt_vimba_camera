@@ -54,6 +54,7 @@ namespace avt_vimba_camera
 {
 enum FrameStartTriggerMode
 {
+  Invalid,
   Freerun,
   FixedRate,
   Software,
@@ -154,7 +155,7 @@ private:
   void configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out);
 
   bool runCommand(const std::string& command_str);
-  int getTriggerModeInt(std::string mode_str);
+  int getTriggerModeInt(const std::string& mode_str);
   void printAllCameraFeatures(const CameraPtr& camera);
 
   void updateAcquisitionConfig(Config& config);

@@ -41,8 +41,8 @@
 namespace avt_vimba_camera
 {
 static const char* AutoMode[] = { "Off", "Once", "Continuous" };
-static const char* TriggerMode[] = { "Freerun", "FixedRate", "Software", "Line0", "Line1",  "Line2",
-                                     "Line3",   "Line4",     "Action0",  "Action1" };
+static const char* TriggerMode[] = { "Invalid", "Freerun", "FixedRate", "Software", "Line0",  "Line1",
+                                     "Line2",   "Line3",   "Line4",     "Action0",  "Action1" };
 static const char* AcquisitionMode[] = { "Continuous", "SingleFrame", "MultiFrame", "Recorder" };
 static const char* PixelFormatMode[] = { "Mono8",           "Mono10",          "Mono10Packed",    "Mono12",
                                          "Mono12Packed",    "BayerGR8",        "BayerRG8",        "BayerGB8",
@@ -652,9 +652,9 @@ bool AvtVimbaCamera::runCommand(const std::string& command_str)
   }
 }
 
-int AvtVimbaCamera::getTriggerModeInt(std::string mode_str)
+int AvtVimbaCamera::getTriggerModeInt(const std::string& mode_str)
 {
-  int mode;
+  int mode = Invalid;
   if (mode_str == TriggerMode[Freerun])
   {
     mode = Freerun;
@@ -669,7 +669,7 @@ int AvtVimbaCamera::getTriggerModeInt(std::string mode_str)
   }
   else if (mode_str == TriggerMode[SyncIn0])
   {
-    mode = SyncIn0;;
+    mode = SyncIn0;
   }
   else if (mode_str == TriggerMode[SyncIn1])
   {
@@ -1206,7 +1206,7 @@ void AvtVimbaCamera::updateUSBGPIOConfig(Config& config)
   {
     ROS_INFO("Updating USB GPIO config:");
   }
-  if (config.line_selector != config_.line_selector|| on_init_)
+  if (config.line_selector != config_.line_selector || on_init_)
   {
     configureFeature("LineSelector", config.line_selector, config.line_selector);
   }
