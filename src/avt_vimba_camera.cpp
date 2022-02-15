@@ -486,6 +486,9 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, T& val)
               val = static_cast<T>(nValue);
             }
             break;
+          default:
+            err = VmbErrorNotFound;
+            break;
         }
         if (err != VmbErrorSuccess)
         {
@@ -542,6 +545,9 @@ bool AvtVimbaCamera::getFeatureValue(const std::string& feature_str, std::string
             {
               val = strValue;
             }
+            break;
+          default:
+            err = VmbErrorNotFound;
             break;
         }
         if (err != VmbErrorSuccess)
@@ -1243,6 +1249,7 @@ void AvtVimbaCamera::getCurrentState(diagnostic_updater::DiagnosticStatusWrapper
       stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Camera has encountered an error");
       break;
     default:
+      stat.summary(diagnostic_msgs::DiagnosticStatus::ERROR, "Camera is in unknown state");
       break;
   }
 }
