@@ -2,8 +2,8 @@
 Changelog for package avt_vimba_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2022-02-15)
+------------------
 * Add missing frame_id to camera_info topic, add missing stamp to image topic (`#70 <https://github.com/astuff/avt_vimba_camera/issues/70>`_)
 * Remove sync node tidbit in README (`#62 <https://github.com/astuff/avt_vimba_camera/issues/62>`_)
 * Add license file (`#66 <https://github.com/astuff/avt_vimba_camera/issues/66>`_)
