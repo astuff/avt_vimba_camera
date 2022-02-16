@@ -2,15 +2,17 @@
 Changelog for package avt_vimba_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1.1.0 (2022-02-15)
+1.1.0 (2022-02-16)
 ------------------
+* Add missing default handlers for two switch statement (`#78 <https://github.com/astuff/avt_vimba_camera/issues/78>`_)
+* Fix a bug in function getTriggerModeInt() (`#77 <https://github.com/astuff/avt_vimba_camera/issues/77>`_)
 * Add missing frame_id to camera_info topic, add missing stamp to image topic (`#70 <https://github.com/astuff/avt_vimba_camera/issues/70>`_)
 * Remove sync node tidbit in README (`#62 <https://github.com/astuff/avt_vimba_camera/issues/62>`_)
 * Add license file (`#66 <https://github.com/astuff/avt_vimba_camera/issues/66>`_)
 * Clarify that this is the ROS1 driver README (`#60 <https://github.com/astuff/avt_vimba_camera/issues/60>`_)
 * Remove sync node (`#59 <https://github.com/astuff/avt_vimba_camera/issues/59>`_)
 * Added features required to run USB cameras (`#54 <https://github.com/astuff/avt_vimba_camera/issues/54>`_)
-* Contributors: Grzegorz Bartyzel, icolwell-as
+* Contributors: Grzegorz Bartyzel, icolwell-as, jilinzhouas
 
 1.0.0 (2021-11-30)
 ------------------
