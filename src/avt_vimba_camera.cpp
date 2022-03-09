@@ -150,25 +150,11 @@ void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_st
     runCommand("GVSPAdjustPacketSize");
   }
 
-  std::string trigger_source;
-  getFeatureValue("TriggerSource", trigger_source);
-  int trigger_source_int = getTriggerModeInt(trigger_source);
+  SP_SET(frame_obs_ptr_,
+          new FrameObserver(vimba_camera_ptr_,
+                            std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
+  camera_state_ = IDLE;
 
-  if (trigger_source_int == Freerun || trigger_source_int == FixedRate || trigger_source_int == SyncIn1 ||
-      trigger_source_int == Action0 || trigger_source_int == Action1 || trigger_source_int == Software)
-  {
-    // Create a frame observer for this camera
-    SP_SET(frame_obs_ptr_,
-           new FrameObserver(vimba_camera_ptr_,
-                             std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
-    camera_state_ = IDLE;
-  }
-  else
-  {
-    diagnostic_msg_ = "Trigger mode " + std::string(TriggerMode[trigger_source_int]) + " not implemented.";
-    ROS_ERROR_STREAM("Trigger mode " << TriggerMode[trigger_source_int] << " not implemented.");
-    camera_state_ = ERROR;
-  }
   updater_.update();
 }
 
@@ -656,52 +642,6 @@ bool AvtVimbaCamera::runCommand(const std::string& command_str)
     ROS_WARN_STREAM("Could not get feature command " << command_str << ". Error: " << api_.errorCodeToMessage(err));
     return false;
   }
-}
-
-int AvtVimbaCamera::getTriggerModeInt(const std::string& mode_str)
-{
-  int mode = Invalid;
-  if (mode_str == TriggerMode[Freerun])
-  {
-    mode = Freerun;
-  }
-  else if (mode_str == TriggerMode[FixedRate])
-  {
-    mode = FixedRate;
-  }
-  else if (mode_str == TriggerMode[Software])
-  {
-    mode = Software;
-  }
-  else if (mode_str == TriggerMode[SyncIn0])
-  {
-    mode = SyncIn0;
-  }
-  else if (mode_str == TriggerMode[SyncIn1])
-  {
-    mode = SyncIn1;
-  }
-  else if (mode_str == TriggerMode[SyncIn2])
-  {
-    mode = SyncIn2;
-  }
-  else if (mode_str == TriggerMode[SyncIn3])
-  {
-    mode = SyncIn3;
-  }
-  else if (mode_str == TriggerMode[SyncIn4])
-  {
-    mode = SyncIn4;
-  }
-  else if (mode_str == TriggerMode[Action0])
-  {
-    mode = Action0;
-  }
-  else if (mode_str == TriggerMode[Action1])
-  {
-    mode = Action1;
-  }
-  return mode;
 }
 
 void AvtVimbaCamera::printAllCameraFeatures(const CameraPtr& camera)

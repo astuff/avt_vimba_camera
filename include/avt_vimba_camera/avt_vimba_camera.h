@@ -52,21 +52,6 @@ using AVT::VmbAPI::VimbaSystem;
 
 namespace avt_vimba_camera
 {
-enum FrameStartTriggerMode
-{
-  Invalid,
-  Freerun,
-  FixedRate,
-  Software,
-  SyncIn0,
-  SyncIn1,
-  SyncIn2,
-  SyncIn3,
-  SyncIn4,
-  Action0,
-  Action1
-};
-
 enum CameraState
 {
   OPENING,
@@ -153,9 +138,7 @@ private:
   template <typename Vimba_Type, typename Std_Type>
   void configureFeature(const std::string& feature_str, const Vimba_Type& val_in, Std_Type& val_out);
   void configureFeature(const std::string& feature_str, const std::string& val_in, std::string& val_out);
-
   bool runCommand(const std::string& command_str);
-  int getTriggerModeInt(const std::string& mode_str);
   void printAllCameraFeatures(const CameraPtr& camera);
 
   void updateAcquisitionConfig(Config& config);
