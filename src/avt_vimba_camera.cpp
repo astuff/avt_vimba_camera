@@ -150,9 +150,10 @@ void AvtVimbaCamera::start(const std::string& ip_str, const std::string& guid_st
     runCommand("GVSPAdjustPacketSize");
   }
 
+  // Create a frame observer for this camera
   SP_SET(frame_obs_ptr_,
-          new FrameObserver(vimba_camera_ptr_,
-                            std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
+         new FrameObserver(vimba_camera_ptr_,
+                           std::bind(&avt_vimba_camera::AvtVimbaCamera::frameCallback, this, std::placeholders::_1)));
   camera_state_ = IDLE;
 
   updater_.update();
