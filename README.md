@@ -62,6 +62,12 @@ sudo sysctl -w 'net.core.rmem_max=26214400'
 
 `26214400` has been tested successfully, but anything above `2000000` is likely fine.
 
+Once you find a value that works for you, you can make the change permanent (persist across reboots) by updating the `/etc/sysctl.conf` file with the following line:
+
+```
+net.core.rmem_max=26214400
+```
+
 ### Camera Settings in General
 
 If you are having difficulty getting the camera to do what you want using the ROS driver, it is suggested to first use Vimba Viewer to play around with settings that work. 
