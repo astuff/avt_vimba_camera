@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>avt_vimba_camera</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <description>Camera driver for Allied Vision Technologies (AVT) cameras, based on their Vimba SDK.</description>
   <license>BSD</license>
 

@@ -2,8 +2,8 @@
 Changelog for package avt_vimba_camera
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2022-04-08)
+------------------
 * Add note about permanent buffer settings to the README (`#91 <https://github.com/astuff/avt_vimba_camera/issues/91>`_)
 * Remove triggermode check (`#84 <https://github.com/astuff/avt_vimba_camera/issues/84>`_)
 * Contributors: icolwell-as
