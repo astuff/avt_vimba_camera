@@ -1,0 +1,35 @@
+/**:
+  ros__parameters:
+    feature/AcquisitionFrameCount: 1
+    feature/AcquisitionFrameRate: 5.0
+    feature/AcquisitionMode: Continuous
+    feature/BalanceWhiteAuto: Continuous
+    feature/BalanceRatio: 1.275
+    feature/ExposureAuto: Continuous
+    feature/ExposureAutoMax: 20000.0
+    feature/ExposureAutoMin: 23.0
+    feature/ExposureMode: Timed
+    feature/ExposureTime: 1000.0
+    feature/GainAuto: Continuous
+    feature/GainAutoMax: 27.0
+    feature/GainAutoMin: 0.0
+    feature/Gamma: 1.0
+    feature/IntensityAutoPrecedence: Minimizenoise
+    feature/IntensityControllerTarget: 50.0
+    feature/IntensityControllerTolerance: 5
+    feature/PixelFormat: BayerRG8
+    feature/TriggerActivation: RisingEdge
+    feature/TriggerMode: 'Off'
+    feature/TriggerSelector: AcquisitionStart
+    feature/TriggerSource: Software
+    feature/Width: 4024
+    feature/Height: 3036
+    feature/TimerDelay: 0.0
+    feature/TimerDUration: 1000.0
+    feature/TimerSelector: Timer0
+    feature/TimerTriggerSource: ExposureActive
+    feature/LineInverter: false
+    feature/LineMode: Output
+    feature/LineSelector: Line0
+    feature/LineSource: Timer0Active
+    
