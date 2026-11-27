@@ -237,9 +237,9 @@ extern "C" {
         VmbPixelFormatYuv411              = VmbPixelColor | VmbPixelOccupy12Bit | 0x001E,  // YUV 411 with 8 bits (GEV:YUV411Packed)
         VmbPixelFormatYuv422              = VmbPixelColor | VmbPixelOccupy16Bit | 0x001F,  // YUV 422 with 8 bits (GEV:YUV422Packed)
         VmbPixelFormatYuv444              = VmbPixelColor | VmbPixelOccupy24Bit | 0x0020,  // YUV 444 with 8 bits (GEV:YUV444Packed)
-        VmbPixelFormatYCbCr411_8_CbYYCrYY = VmbPixelColor | VmbPixelOccupy12Bit | 0x003C,  // Y´CbCr 411 with 8 bits (PFNC:YCbCr411_8_CbYYCrYY) - identical to VmbPixelFormatYuv411
-        VmbPixelFormatYCbCr422_8_CbYCrY   = VmbPixelColor | VmbPixelOccupy16Bit | 0x0043,  // Y´CbCr 422 with 8 bits (PFNC:YCbCr422_8_CbYCrY) - identical to VmbPixelFormatYuv422
-        VmbPixelFormatYCbCr8_CbYCr        = VmbPixelColor | VmbPixelOccupy24Bit | 0x003A,  // Y´CbCr 444 with 8 bits (PFNC:YCbCr8_CbYCr) - identical to VmbPixelFormatYuv444
+        VmbPixelFormatYCbCr411_8_CbYYCrYY = VmbPixelColor | VmbPixelOccupy12Bit | 0x003C,  // YCbCr 411 with 8 bits (PFNC:YCbCr411_8_CbYYCrYY) - identical to VmbPixelFormatYuv411
+        VmbPixelFormatYCbCr422_8_CbYCrY   = VmbPixelColor | VmbPixelOccupy16Bit | 0x0043,  // YCbCr 422 with 8 bits (PFNC:YCbCr422_8_CbYCrY) - identical to VmbPixelFormatYuv422
+        VmbPixelFormatYCbCr8_CbYCr        = VmbPixelColor | VmbPixelOccupy24Bit | 0x003A,  // YCbCr 444 with 8 bits (PFNC:YCbCr8_CbYCr) - identical to VmbPixelFormatYuv444
         VmbPixelFormatLast,
     } VmbPixelFormatType;
     typedef VmbUint32_t VmbPixelFormat_t;       // Type for the pixel format; for values see VmbPixelFormatType
